@@ -1,0 +1,65 @@
+server:
+  port: 60000
+  forward-headers-strategy: framework #добавление инфы для конечного сервиса, что запрос был спроксирован
+  error:
+    include-message: always
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+spring:
+  application:
+    name: gateway-ms
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${keycloak.auth-server-uri}/realms/${keycloak.realm}/protocol/openid-connect/certs
+
+  cloud:
+    loadbalancer:
+      cache:
+        enabled: true
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: auth
+          uri: ${keycloak.auth-server-uri}
+          predicates:
+          - Path=/openid-connect/**
+          filters:
+          - RewritePath=/openid-connect,/realms/${keycloak.realm}/protocol/openid-connect
+
+        - id: portal
+          uri: lb://portal-ms
+          predicates:
+            - Path:/portal/**
+
+        - id: driver
+          uri: lb://driver-ms
+          predicates:
+            - Path:/driver-ms/**
+            -
+        - id: dwh
+          uri: lb://dwh-ms
+          predicates:
+            - Path:/dwh-ms/**
+            -
+        - id: logist
+          uri: lb://logist-ms
+          predicates:
+            - Path:/logist-ms/**
+
+keycloak:
+  auth-server-uri: http://localhost:8080
+  auth-path: /realms/${keycloak.realm}/protocol/openid-connect/token
+  realm: gnivc-road-constructing
+  client: admin-cli
+  secret: Mhim7DaPNA73tV25LF3uvqJzHuirAtx0

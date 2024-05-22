@@ -1,0 +1,110 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: gnivc_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: gnivc
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - ./config/postgres-data:/var/lib/postgresql/data
+
+#версия кейклока должна соответствовать версии keycloak client на java
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.2
+    container_name: gnivc_keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+      - ./config/keycloak/realms/:/opt/keycloak/data/h2/
+    ports:
+      - "8080:8080"
+    command:
+      - start-dev
+      - --import-realm
+      - --features
+      - admin-fine-grained-authz
+
+#  minio:
+#    image: minio/minio:latest
+#    container_name: gnivc_minio
+#    command: server --console-address ":9001" /data/
+#    ports:
+#      - "9000:9000"
+#      - "9001:9001"
+#    environment:
+#      MINIO_ROOT_USER: admin #минимум 3 символа
+#      MINIO_ROOT_PASSWORD: password #минимум 8 символов
+#    volumes:
+#      - ./config/minio:/data
+
+#  rabbitmq:
+#    image: 'bitnami/rabbitmq:latest'
+#    ports:
+#      - '15672:15672'
+#      - '5672:5672'
+
+#  zookeeper:
+#    image: wurstmeister/zookeeper:3.4.6
+#    hostname: zookeeper
+#    container_name: gnivc_zookeeper
+#    restart: always
+#    ports:
+#      - 2181:2181
+#    networks:
+#      - test_network
+#
+#  kafka:
+#    image: 'bitnami/kafka:3.5.1'
+#    container_name: gnivc_kafka
+#    hostname: kafka
+#    depends_on:
+#      - zookeeper #не будет запущен, пока ZooKeeper не будет запущен.
+#    restart: always
+#    ports:
+#      - '9092:9092'
+#      - '29092:29092'
+#    environment:
+#      KAFKA_ADVERTISED_HOST_NAME: kafka
+#      KAFKA_ADVERTISED_PORT: 9092
+#      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181 #подключение к ZooKeeper.
+#      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+#      ALLOW_PLAINTEXT_LISTENER: yes
+#      KAFKA_BROKER_ID: 0
+#      KAFKA_LISTENERS: EXTERNAL_SAME_HOST://:29092,INTERNAL://:9092
+#      KAFKA_ADVERTISED_LISTENERS: INTERNAL://broker:9092,EXTERNAL_SAME_HOST://localhost:29092 # устанавливает слушателей, которые будут рекламироваться
+#      #другим брокерам в кластере.
+#      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL_SAME_HOST:PLAINTEXT #Сопоставляет протокол безопасности "PLAINTEXT" со схемой "PLAINTEXT"
+#      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL #устанавливает имя слушателя, который будет использоваться для межброкерской связи
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1 #устанавливает коэффициент репликации для темы смещений
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#    networks:
+#      - test_network
+#
+#  kafka-ui:
+#    image: provectuslabs/kafka-ui
+#    container_name: kafka-ui
+#    ports:
+#      - 8090:8080
+#    restart: always
+#    environment:
+#      - KAFKA_CLUSTERS_0_NAME=local #устанавливает имя кластера Kafka в "local"
+#      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:29092,kafka2:29093 #Устанавливает список адресов загрузки для кластера Kafka
+#      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+#    links:
+#      - kafka
+#      - zookeeper
+#    networks:
+#      - test_network
+#
+#networks:
+#  test_network:
+#
+#volumes:
+#  minio:

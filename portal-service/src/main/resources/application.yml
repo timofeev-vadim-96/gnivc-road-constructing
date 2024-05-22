@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gnivc
+    username: postgres
+    password: admin
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  application:
+    name: portal-ms
+
+server:
+  error:
+    include-message: always
+  port: 60004
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+keycloak:
+  auth-server-url: http://localhost:8080/auth
+#  auth-path: /realms/${keycloak.realm}/protocol/openid-connect/token
+  realm: gnivc-road-constructing
+  resource: admin-cli
+  public-client: true
+  client-key-password: Mhim7DaPNA73tV25LF3uvqJzHuirAtx0
+  user:
+    password:
+      length: 6
+      lowerCaseCharsQuantity: 4
+      upperCaseCharsQuantity: 1
+      digitsQuantity: 1

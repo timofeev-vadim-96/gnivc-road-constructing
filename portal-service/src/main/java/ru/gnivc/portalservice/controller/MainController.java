@@ -1,5 +1,6 @@
 package ru.gnivc.portalservice.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.gnivc.portalservice.dto.ResetPasswordDto;
@@ -9,12 +10,21 @@ import ru.gnivc.portalservice.dto.UserDto;
 @RequestMapping("/portal/v1")
 public class MainController {
 
+
+    /**
+     * TEST ROUTE
+     */
+    @GetMapping
+    public String testRoute(){
+        return "This is an endpoint int the PORTAL-MS";
+    }
+
     /**
      * Создание пользователя
      */
     @PostMapping("/user")
-    public ResponseEntity<Void> createUser(@RequestBody UserDto userDto){
-        return null;
+    public ResponseEntity<String> createUser(@RequestBody UserDto userDto){
+        return new ResponseEntity<>("address: user", HttpStatus.OK);
     }
 
     /**

@@ -8,8 +8,11 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: false
   instance:
     prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 1
+    lease-expiration-duration-in-seconds: 1
 
 spring:
   application:
@@ -17,8 +20,10 @@ spring:
 
   security:
     oauth2:
+      #для валидации токенов
       resourceserver:
         jwt:
+          issuer-uri: ${keycloak.auth-server-uri}/realms/${keycloak.realm}
           jwk-set-uri: ${keycloak.auth-server-uri}/realms/${keycloak.realm}/protocol/openid-connect/certs
 
   cloud:
@@ -28,7 +33,7 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: true
+          enabled: true #маршрутизация на основе Eureka
       routes:
         - id: auth
           uri: ${keycloak.auth-server-uri}
@@ -40,26 +45,26 @@ spring:
         - id: portal
           uri: lb://portal-ms
           predicates:
-            - Path:/portal/**
+            - Path=/portal/**
 
         - id: driver
           uri: lb://driver-ms
           predicates:
-            - Path:/driver-ms/**
-            -
+            - Path=/driver-ms/**
+
         - id: dwh
           uri: lb://dwh-ms
           predicates:
-            - Path:/dwh-ms/**
-            -
+            - Path=/dwh-ms/**
+
         - id: logist
           uri: lb://logist-ms
           predicates:
-            - Path:/logist-ms/**
+            - Path=/logist-ms/**
 
 keycloak:
   auth-server-uri: http://localhost:8080
-  auth-path: /realms/${keycloak.realm}/protocol/openid-connect/token
   realm: gnivc-road-constructing
-  client: admin-cli
-  secret: Mhim7DaPNA73tV25LF3uvqJzHuirAtx0
+  resource: admin-cli
+  client-key-password: Mhim7DaPNA73tV25LF3uvqJzHuirAtx0
+  token-store: /realms/${keycloak.realm}/protocol/openid-connect/token

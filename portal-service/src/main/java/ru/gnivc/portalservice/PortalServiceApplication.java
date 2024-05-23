@@ -17,8 +17,8 @@ public class PortalServiceApplication {
 	public static void main(String[] args) {
 		ConfigurableApplicationContext context = SpringApplication.run(PortalServiceApplication.class, args);
 
-		UserService service = context.getBean(UserService.class);
-		service.createNewUser(new UserDto("some@email.com", "testUser", "password"));
+//		UserService service = context.getBean(UserService.class);
+//		service.createNewUser(new UserDto("some@email.com", "testUser", "password"));
 	}
 
 }

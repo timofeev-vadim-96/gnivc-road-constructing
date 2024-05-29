@@ -16,6 +16,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<spring-cloud.version>2023.0.1</spring-cloud.version>
+		<resteasy.version>6.2.9.Final</resteasy.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -38,15 +39,24 @@
 			<optional>true</optional>
 		</dependency>
 
+		<!--все для клиента кейклок-->
 		<dependency>
 			<groupId>org.keycloak</groupId>
 			<artifactId>keycloak-admin-client</artifactId>
 			<version>24.0.2</version>
 		</dependency>
 		<dependency>
-			<groupId>org.keycloak</groupId>
-			<artifactId>keycloak-spring-boot-starter</artifactId>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-client</artifactId>
+			<version>${resteasy.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-jackson2-provider</artifactId>
+			<version>${resteasy.version}</version>
+		</dependency>
+
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -79,8 +89,19 @@
 			<artifactId>passay</artifactId>
 			<version>1.6.4</version>
 		</dependency>
-	</dependencies>
 
+		<!--отправка почты-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
+		<!--Web-client-->
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.boot</groupId>-->
+<!--			<artifactId>spring-boot-starter-webflux</artifactId>-->
+<!--		</dependency>-->
+	</dependencies>
 
 
 	<dependencyManagement>

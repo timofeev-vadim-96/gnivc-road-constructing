@@ -64,7 +64,7 @@ spring:
 
 keycloak:
   auth-server-uri: http://localhost:8080
-  realm: gnivc-road-constructing
-  resource: admin-cli
-  client-key-password: Mhim7DaPNA73tV25LF3uvqJzHuirAtx0
+  realm: gnivc
+  resource: gnivc-client
+  client-key-password: D6r2AZ8s8eO3vbMrcmWOijJxX7mvadFj
   token-store: /realms/${keycloak.realm}/protocol/openid-connect/token

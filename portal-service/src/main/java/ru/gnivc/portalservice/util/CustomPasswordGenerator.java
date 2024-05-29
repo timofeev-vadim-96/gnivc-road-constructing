@@ -5,9 +5,10 @@ import org.passay.CharacterData;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.PasswordGenerator;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.gnivc.portalservice.config.UserPasswordProperties;
+
+import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
@@ -15,7 +16,7 @@ public class CustomPasswordGenerator {
     private final UserPasswordProperties userPasswordProperties;
 
     /**
-     * Метод генерации случайной последовательности символов
+     * Password generation
      */
     public String generatePassword(){
         return generatePassword(
@@ -25,6 +26,20 @@ public class CustomPasswordGenerator {
                 userPasswordProperties.digitsQuantity);
     }
 
+    /**
+     * Generating the recovery code
+     */
+    public String generateResetCode(){
+        return generatePassword(
+                userPasswordProperties.resetCodeLength,
+                userPasswordProperties.resetCodeLowerCaseCharsQuantity,
+                userPasswordProperties.resetCodeUpperCaseCharsQuantity,
+                userPasswordProperties.resetCodeDigitsQuantity);
+    }
+
+    /**
+     * Password generation
+     */
     public String generatePassword(int passwordLength, int lowerCaseCharsQuantity, int upperCaseCharsQuantity, int digitsQuantity) {
         PasswordGenerator gen = new PasswordGenerator();
         CharacterData lowerCaseChars = EnglishCharacterData.LowerCase;
@@ -41,5 +56,12 @@ public class CustomPasswordGenerator {
 
         return gen.generatePassword(passwordLength, lowerCaseRule,
                 upperCaseRule, digitRule);
+    }
+
+    /**
+     * Generation of the recovery code validity period
+     */
+    public LocalDateTime getExpirationDateFromNow(){
+        return LocalDateTime.now().plusMinutes(userPasswordProperties.resetCodeExpirationDateInMinutes);
     }
 }

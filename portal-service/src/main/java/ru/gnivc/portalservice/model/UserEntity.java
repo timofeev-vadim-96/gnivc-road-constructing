@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.gnivc.portalservice.util.Role;
 
 @Entity
 @Data
@@ -13,14 +12,16 @@ import ru.gnivc.portalservice.util.Role;
 @AllArgsConstructor
 @Builder
 @Table(name = "users")
-public class CustomUser {
+public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String email; //username in keycloak
-    @Column(name = "first-name")
+    @Column(unique = true)
+    private String email;
+    @Column(name = "first_name")
     private String firstName;
-    @Column(name = "last-name")
+    @Column(name = "last_name")
     private String lastName;
-    private String role;
+    @Column(name = "is_registrator")
+    private boolean isRegistrator;
 }

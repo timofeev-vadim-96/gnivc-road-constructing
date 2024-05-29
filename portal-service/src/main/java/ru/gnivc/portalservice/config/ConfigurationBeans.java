@@ -15,11 +15,13 @@ public class ConfigurationBeans {
     @Bean
     public Keycloak keycloak() {
         return KeycloakBuilder.builder()
-                .serverUrl(keycloakProperties.authServerUrl)
+                .serverUrl(keycloakProperties.serverUrl)
                 .realm(keycloakProperties.realm)
+                .grantType(OAuth2Constants.PASSWORD)
                 .clientId(keycloakProperties.resource)
                 .clientSecret(keycloakProperties.clientKeyPassword)
-                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
+                .username(keycloakProperties.adminUsername)
+                .password(keycloakProperties.adminPassword)
                 .build();
     }
 }

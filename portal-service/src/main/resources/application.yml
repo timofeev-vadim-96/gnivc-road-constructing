@@ -9,11 +9,22 @@ spring:
     show-sql: true
   application:
     name: portal-ms
+  mail:
+    host: smtp.mail.ru
+    port: 465
+    username: timofeev.vadim.developement@mail.ru
+    password: WvNc4V8zXhj1ZmvnacXu
+    properties:
+      mail:
+        protocol: smtp
+        smtp:
+          ssl:
+            enable: true
 
 server:
   error:
     include-message: always
-  port: 60004
+  port: 60005
 eureka:
   client:
     serviceUrl:
@@ -22,15 +33,27 @@ eureka:
     prefer-ip-address: true
 
 keycloak:
-  auth-server-url: http://localhost:8080/auth
-#  auth-path: /realms/${keycloak.realm}/protocol/openid-connect/token
-  realm: gnivc-road-constructing
-  resource: admin-cli
+  server-url: http://localhost:8080
+  realm: gnivc
+  resource: gnivc-client
   public-client: true
-  client-key-password: Mhim7DaPNA73tV25LF3uvqJzHuirAtx0
+  client-key-password: mlJxpBQQF6rP5gPG0ZKU3hxyBTmX5dJz
+  admin_username: admin
+  admin_password: admin
   user:
     password:
       length: 6
-      lowerCaseCharsQuantity: 4
-      upperCaseCharsQuantity: 1
-      digitsQuantity: 1
+      lower_case_chars_quantity: 4
+      upper_case_chars_quantity: 1
+      digits_quantity: 1
+      reset_code:
+        length: 16
+        lower_case_chars_quantity: 10
+        upper_case_chars_quantity: 3
+        digits_quantity: 3
+        expiration_date_in_minutes: 5
+
+dadata:
+  api-endpoint: http://suggestions.dadata.ru/suggestions/api/4_1/rs/findById/party
+  api-key: 87923b5a37ad9cf561e9e75e99bc7736caa8899c
+  secret: 32151f62e23a70c11568f160e43054af2ce86458

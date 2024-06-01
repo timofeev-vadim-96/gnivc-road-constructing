@@ -73,9 +73,10 @@ public class UserService {
     @Transactional
     public ResponseEntity<String> createRegistrator(UserDto userDto) {
         Optional<UserEntity> user = userDao.findByEmail(userDto.getEmail());
+        Optional<UserRepresentation> userInKeycloak = keycloakService.findUserByMail(userDto.getEmail());
 
         //if the user exists in the realm
-        if (user.isPresent()) {
+        if (user.isPresent() || userInKeycloak.isPresent()) {
             String answer = "The user with mail " + userDto.getEmail() + " already exists.";
             return new ResponseEntity<>(answer, HttpStatus.BAD_REQUEST);
         } else {
@@ -176,7 +177,7 @@ public class UserService {
         if (!resetPasswordDto.getResetCode().equals(resetCodesByEmailMap.get(email).resetCode)) {
             answer = "Invalid password recovery code";
             return new ResponseEntity<>(answer, HttpStatus.BAD_REQUEST);
-        } else if (resetCodesByEmailMap.get(email).issueTime.isAfter(now)) {
+        } else if (resetCodesByEmailMap.get(email).issueTime.isBefore(now)) {
             answer = "The password reset code has expired";
             return new ResponseEntity<>(answer, HttpStatus.REQUEST_TIMEOUT);
         } else {

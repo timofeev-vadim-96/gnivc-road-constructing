@@ -1,6 +1,5 @@
 package ru.gnivc.portalservice.service;
 
-import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.CreatedResponseUtil;
@@ -12,8 +11,10 @@ import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
 import ru.gnivc.portalservice.config.KeycloakProperties;
+import ru.gnivc.portalservice.dao.CompanyDao;
 import ru.gnivc.portalservice.dao.KeycloakCompaniesDao;
 import ru.gnivc.portalservice.dto.input.UserDto;
+import ru.gnivc.portalservice.model.CompanyEntity;
 import ru.gnivc.portalservice.model.KeycloakCompany;
 import ru.gnivc.portalservice.util.ClientRole;
 import ru.gnivc.portalservice.util.RealmRole;
@@ -26,13 +27,15 @@ public class KeycloakService {
     private final RealmResource realm;
     private final UsersResource usersManager;
     private final ClientsResource clientsManager;
-    private final KeycloakCompaniesDao dao;
+    private final KeycloakCompaniesDao keycloakCompaniesDao;
+    private final CompanyDao companyDao;
 
-    public KeycloakService(Keycloak keycloak, KeycloakProperties properties, KeycloakCompaniesDao dao) {
+    public KeycloakService(Keycloak keycloak, KeycloakProperties properties, KeycloakCompaniesDao keycloakCompaniesDao, CompanyDao companyDao) {
         realm = keycloak.realm(properties.realm);
         usersManager = realm.users();
         clientsManager = realm.clients();
-        this.dao = dao;
+        this.keycloakCompaniesDao = keycloakCompaniesDao;
+        this.companyDao = companyDao;
     }
 
     private record RegistrationResult(UserRepresentation newUser, Response response, String userId) {
@@ -116,12 +119,12 @@ public class KeycloakService {
     }
 
     public ClientRepresentation findClientById(String clientName) {
-        String clientUUID = dao.findByName(clientName).get().getId();
+        String clientUUID = keycloakCompaniesDao.findByName(clientName).get().getId();
         return clientsManager.get(clientUUID).toRepresentation();
     }
 
     public void assignClientLevelRoleToUser(String userId, String clientName, ClientRole role) {
-        String clientUUID = dao.findByName(clientName).get().getId();
+        String clientUUID = keycloakCompaniesDao.findByName(clientName).get().getId();
         RoleRepresentation clientLevelRole = clientsManager.get(clientUUID)
                 .roles()
                 .list()
@@ -133,9 +136,9 @@ public class KeycloakService {
         usersManager.get(userId).roles().clientLevel(clientUUID).add(Collections.singletonList(clientLevelRole));
     }
 
-    public int createClient(String clientId) {
+    public int createClient(String clientName) {
         ClientRepresentation clientRepresentation = new ClientRepresentation();
-        clientRepresentation.setClientId(clientId);
+        clientRepresentation.setClientId(clientName);
         clientRepresentation.setPublicClient(false);
         clientRepresentation.setEnabled(true);
         clientRepresentation.setServiceAccountsEnabled(true);
@@ -145,7 +148,8 @@ public class KeycloakService {
 
         if (statusCode == 201) {
             String createdId = CreatedResponseUtil.getCreatedId(response); //here we can get client's assigned UUID
-            dao.save(new KeycloakCompany(createdId, clientId));
+            CompanyEntity returnedCompanyFromDB = companyDao.findByName(clientName).get();
+            keycloakCompaniesDao.save(new KeycloakCompany(createdId, clientName, returnedCompanyFromDB));
             fillClientWithRoles(createdId);
         }
         return statusCode;

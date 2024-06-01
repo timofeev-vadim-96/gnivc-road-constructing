@@ -2,13 +2,13 @@ package ru.gnivc.portalservice.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import reactor.core.publisher.Mono;
 import ru.gnivc.portalservice.dao.CompanyDao;
 import ru.gnivc.portalservice.dao.CustomQueriesDao;
 import ru.gnivc.portalservice.dto.output.CompanyCardDto;
@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class CompanyService {
     private final KeycloakService keycloakService;
@@ -38,7 +39,9 @@ public class CompanyService {
                     String.format("The user with email: %s was not found", email));
         } else {
             String userId = user.get().getId();
-            Mono<JsonNode> companyDetails = daDataService.getCompanyDetailsByINN(inn);
+            JsonNode companyDetails = daDataService.getCompanyDetailsByINN(inn);
+            log.info("company details from DaData: {}", companyDetails);
+
             Optional<CompanyEntity> company = daDataService.serializeResponseToCompany(companyDetails);
             if (company.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     String.format("The company with inn: %s not found.", inn));

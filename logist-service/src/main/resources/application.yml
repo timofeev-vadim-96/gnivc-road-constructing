@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/road-constructing-db
+    url: jdbc:postgresql://localhost:5432/gnivc_logist_db
     username: postgres
     password: root
   jpa:
@@ -9,11 +9,6 @@ spring:
     show-sql: true
   application:
     name: logist-ms
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8080/realms/gnivc-road-constructing
 
 server:
   error:

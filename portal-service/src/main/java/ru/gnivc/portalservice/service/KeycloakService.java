@@ -1,5 +1,6 @@
 package ru.gnivc.portalservice.service;
 
+import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.CreatedResponseUtil;
@@ -11,13 +12,13 @@ import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
 import ru.gnivc.portalservice.config.KeycloakProperties;
+import ru.gnivc.portalservice.dao.KeycloakCompaniesDao;
 import ru.gnivc.portalservice.dto.input.UserDto;
+import ru.gnivc.portalservice.model.KeycloakCompany;
 import ru.gnivc.portalservice.util.ClientRole;
 import ru.gnivc.portalservice.util.RealmRole;
 
-import java.util.Collections;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -25,16 +26,19 @@ public class KeycloakService {
     private final RealmResource realm;
     private final UsersResource usersManager;
     private final ClientsResource clientsManager;
+    private final KeycloakCompaniesDao dao;
 
-    public KeycloakService(Keycloak keycloak, KeycloakProperties properties) {
+    public KeycloakService(Keycloak keycloak, KeycloakProperties properties, KeycloakCompaniesDao dao) {
         realm = keycloak.realm(properties.realm);
         usersManager = realm.users();
         clientsManager = realm.clients();
+        this.dao = dao;
     }
+
     private record RegistrationResult(UserRepresentation newUser, Response response, String userId) {
     }
 
-    private RegistrationResult registerUser(UserDto userDto){
+    private RegistrationResult registerUser(UserDto userDto) {
         UserRepresentation newUser = convertToUserRepresentation(userDto);
         Response response = usersManager.create(newUser);
         log.info(String.format("Response: %s %s%n", response.getStatus(), response.getStatusInfo()));
@@ -45,7 +49,7 @@ public class KeycloakService {
         return new RegistrationResult(newUser, response, userId);
     }
 
-    public void updateUser(UserDto userDto, String email){
+    public void updateUser(UserDto userDto, String email) {
         UserRepresentation user = usersManager.searchByEmail(email, true).getFirst();
         user.setEmail(userDto.getEmail());
         user.setFirstName(userDto.getFirstName());
@@ -63,14 +67,14 @@ public class KeycloakService {
         }
         return null;
     }
-    public String registerClientUser(UserDto userDto, String password, String clientId) {
+
+    public Optional<String> registerClientUser(UserDto userDto, String password, String companyName) {
         RegistrationResult registrationResult = registerUser(userDto);
         if (registrationResult.response.getStatus() == 201) {
             setPassword(registrationResult.userId, password);
-            assignClientLevelRoleToUser(registrationResult.userId, clientId, userDto.getClientRole());
-            return registrationResult.newUser.getUsername();
-        }
-        return null;
+            assignClientLevelRoleToUser(registrationResult.userId, companyName, userDto.getClientRole());
+            return Optional.ofNullable(registrationResult.newUser.getUsername());
+        } else return Optional.empty();
     }
 
     public UserRepresentation convertToUserRepresentation(UserDto userDto) {
@@ -97,8 +101,9 @@ public class KeycloakService {
         return usersManager.get(userId).toRepresentation();
     }
 
-    public Optional<UserRepresentation> findUserByMail(String userMail) {
-        return Optional.ofNullable(usersManager.searchByEmail(userMail, true).getFirst());
+    public Optional<UserRepresentation> findUserByMail(String email) {
+        return usersManager.searchByEmail(email, true)
+                .stream().findFirst();
     }
 
     public void removeUser(String userId) {
@@ -111,12 +116,21 @@ public class KeycloakService {
     }
 
     public ClientRepresentation findClientById(String clientName) {
-        return clientsManager.findByClientId(clientName).getFirst();
+        String clientUUID = dao.findByName(clientName).get().getId();
+        return clientsManager.get(clientUUID).toRepresentation();
     }
 
-    public void assignClientLevelRoleToUser(String userId, String clientId, ClientRole role) {
-        RoleRepresentation clientLevelRole = clientsManager.get(clientId).roles().get(role.name()).toRepresentation();
-        usersManager.get(userId).roles().clientLevel(clientId).add(Collections.singletonList(clientLevelRole));
+    public void assignClientLevelRoleToUser(String userId, String clientName, ClientRole role) {
+        String clientUUID = dao.findByName(clientName).get().getId();
+        RoleRepresentation clientLevelRole = clientsManager.get(clientUUID)
+                .roles()
+                .list()
+                .stream()
+                .filter(element -> element.getName().equals(role.name()))
+                .toList()
+                .getFirst();
+
+        usersManager.get(userId).roles().clientLevel(clientUUID).add(Collections.singletonList(clientLevelRole));
     }
 
     public int createClient(String clientId) {
@@ -128,22 +142,35 @@ public class KeycloakService {
 
         Response response = clientsManager.create(clientRepresentation);
         int statusCode = response.getStatus();
-        log.info("HTTP Status of client creation = {}", statusCode);
 
-        if (statusCode == 201) fillClientWithRoles(clientId);
+        if (statusCode == 201) {
+            String createdId = CreatedResponseUtil.getCreatedId(response); //here we can get client's assigned UUID
+            dao.save(new KeycloakCompany(createdId, clientId));
+            fillClientWithRoles(createdId);
+        }
         return statusCode;
     }
 
     public void fillClientWithRoles(String clientId) {
-        ClientResource clientResource = clientsManager.get(clientId);
-        log.info("client: {}", clientResource);
         for (ClientRole role : ClientRole.values()) {
-            RoleRepresentation roleRepresentation = new RoleRepresentation();
-            roleRepresentation.setName(role.name());
-            roleRepresentation.setClientRole(true);
-            roleRepresentation.setComposite(false);
-
-            clientResource.roles().create(roleRepresentation);
+            registerClientRole(clientId, role.name());
         }
+    }
+
+    public void registerRealmRole(String role) {
+        RoleRepresentation roleRepresentation = new RoleRepresentation();
+        roleRepresentation.setName(role);
+        realm.roles().create(roleRepresentation);
+    }
+
+    /**
+     * @param clientId - here we muse use UUID KEYCLOAK (automatically generated) of the client
+     */
+    public void registerClientRole(String clientId, String role) {
+        RoleRepresentation roleRepresentation = new RoleRepresentation();
+        roleRepresentation.setName(role);
+        roleRepresentation.setClientRole(true);
+
+        clientsManager.get(clientId).roles().create(roleRepresentation);
     }
 }

@@ -35,9 +35,9 @@ eureka:
 keycloak:
   server-url: http://localhost:8080
   realm: gnivc
-  resource: gnivc-client
+  resource: admin-cli
   public-client: true
-  client-key-password: mlJxpBQQF6rP5gPG0ZKU3hxyBTmX5dJz
+  client-key-password: encK0MQ0xesEwj5Z4RU6da7I3xk3ramD
   admin_username: admin
   admin_password: admin
   user:
@@ -46,12 +46,12 @@ keycloak:
       lower_case_chars_quantity: 4
       upper_case_chars_quantity: 1
       digits_quantity: 1
-      reset_code:
-        length: 16
-        lower_case_chars_quantity: 10
-        upper_case_chars_quantity: 3
-        digits_quantity: 3
-        expiration_date_in_minutes: 5
+resetCode:
+  length: 16
+  lower_case_chars_quantity: 10
+  upper_case_chars_quantity: 3
+  digits_quantity: 3
+  expiration_date_in_minutes: 5
 
 dadata:
   api-endpoint: http://suggestions.dadata.ru/suggestions/api/4_1/rs/findById/party

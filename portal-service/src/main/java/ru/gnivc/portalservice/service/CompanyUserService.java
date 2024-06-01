@@ -20,9 +20,9 @@ public class CompanyUserService {
     private final UserDao userDao;
     private final CompanyDao companyDao;
 
-    public void bindUserWithCompany(String email, String clientId, ClientRole role) {
+    public void bindUserWithCompany(String email, String companyName, ClientRole role) {
         Optional<UserEntity> user = userDao.findByEmail(email);
-        Optional<CompanyEntity> company = companyDao.findByName(clientId);
+        Optional<CompanyEntity> company = companyDao.findByName(companyName);
         if (user.isEmpty() || company.isEmpty()) {
             throw new NotFoundException(
                     "The client or user was not found during the attempt to link them in the service table");

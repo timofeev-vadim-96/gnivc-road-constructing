@@ -14,9 +14,5 @@ public class UserPasswordProperties {
     public int lowerCaseCharsQuantity;
     public int upperCaseCharsQuantity;
     public int digitsQuantity;
-    public int resetCodeLength;
-    public int resetCodeLowerCaseCharsQuantity;
-    public int resetCodeUpperCaseCharsQuantity;
-    public int resetCodeDigitsQuantity;
-    public int resetCodeExpirationDateInMinutes;
 }
+

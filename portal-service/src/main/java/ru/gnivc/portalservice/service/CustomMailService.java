@@ -23,7 +23,7 @@ public class CustomMailService {
     @Value("${spring.mail.username}")
     private String from;
 
-    public void sendSimpleEmail(String toAddress, String subject, String message) {
+    public boolean sendSimpleEmail(String toAddress, String subject, String message) {
         try {
             SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
             simpleMailMessage.setTo(toAddress);
@@ -31,8 +31,9 @@ public class CustomMailService {
             simpleMailMessage.setText(message);
             simpleMailMessage.setFrom(from);
             emailSender.send(simpleMailMessage);
+            return true;
         } catch (MailException e) {
-            throw new RuntimeException("Exception while trying to send a message to the mail: " + toAddress, e);
+            return false;
         }
     }
 

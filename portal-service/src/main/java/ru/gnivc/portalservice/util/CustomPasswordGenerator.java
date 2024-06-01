@@ -6,6 +6,7 @@ import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.PasswordGenerator;
 import org.springframework.stereotype.Component;
+import ru.gnivc.portalservice.config.ResetCodeProperties;
 import ru.gnivc.portalservice.config.UserPasswordProperties;
 
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class CustomPasswordGenerator {
     private final UserPasswordProperties userPasswordProperties;
+    private final ResetCodeProperties resetCodeProperties;
 
     /**
      * Password generation
@@ -31,10 +33,10 @@ public class CustomPasswordGenerator {
      */
     public String generateResetCode(){
         return generatePassword(
-                userPasswordProperties.resetCodeLength,
-                userPasswordProperties.resetCodeLowerCaseCharsQuantity,
-                userPasswordProperties.resetCodeUpperCaseCharsQuantity,
-                userPasswordProperties.resetCodeDigitsQuantity);
+                resetCodeProperties.length,
+                resetCodeProperties.lowerCaseCharsQuantity,
+                resetCodeProperties.upperCaseCharsQuantity,
+                resetCodeProperties.digitsQuantity);
     }
 
     /**
@@ -62,6 +64,6 @@ public class CustomPasswordGenerator {
      * Generation of the recovery code validity period
      */
     public LocalDateTime getExpirationDateFromNow(){
-        return LocalDateTime.now().plusMinutes(userPasswordProperties.resetCodeExpirationDateInMinutes);
+        return LocalDateTime.now().plusMinutes(resetCodeProperties.expirationDateInMinutes);
     }
 }

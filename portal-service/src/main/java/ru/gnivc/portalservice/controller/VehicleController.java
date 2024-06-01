@@ -22,13 +22,13 @@ public class VehicleController {
     @PostMapping
     public ResponseEntity<VehicleEntity> registerVehicle(
             @Valid @RequestBody VehicleDto vehicleDto,
-            @RequestParam String companyId){
+            @RequestParam String companyName){
 
-        VehicleEntity vehicle = vehicleService.save(vehicleDto, companyId);
+        VehicleEntity vehicle = vehicleService.save(vehicleDto, companyName);
         if (vehicle != null) {
             return new ResponseEntity<>(vehicle, HttpStatus.CREATED);
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The company with id = " + companyId + " was not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The company with name = " + companyName + " was not found");
         }
     }
 }

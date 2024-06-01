@@ -24,7 +24,7 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${keycloak.auth-server-uri}/realms/${keycloak.realm}
-          jwk-set-uri: ${keycloak.auth-server-uri}/realms/${keycloak.realm}/protocol/openid-connect/certs
+#          jwk-set-uri: ${keycloak.auth-server-uri}/realms/${keycloak.realm}/protocol/openid-connect/certs
 
   cloud:
     loadbalancer:

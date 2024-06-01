@@ -11,6 +11,8 @@ import ru.gnivc.portalservice.model.CompanyEntity;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class DaDataService {
@@ -35,33 +37,38 @@ public class DaDataService {
                 .bodyToMono(JsonNode.class);
     }
 
-    public CompanyEntity serializeResponseToCompany(Mono<JsonNode> response) {
-        return response.flatMap(resp -> {
-            String address = resp.path("suggestions").get(0)
-                    .path("data")
-                    .path("address")
-                    .path("value").asText();
-            String kpp = resp.path("suggestions").get(0)
-                    .path("data")
-                    .path("kpp").asText();
-            String ogrn = resp.path("suggestions").get(0)
-                    .path("data")
-                    .path("ogrn").asText();
-            String inn = resp.path("suggestions").get(0)
-                    .path("data")
-                    .path("inn").asText();
-            String fullName = resp.path("suggestions").get(0)
-                    .path("data")
-                    .path("name")
-                    .path("full").asText();
+    public Optional<CompanyEntity> serializeResponseToCompany(Mono<JsonNode> response) {
+        AtomicReference<Optional<CompanyEntity>> company = new AtomicReference<>();
+        response.subscribe(resp -> {
+            if (resp == null) company.set(Optional.empty());
+            else {
+                String address = resp.path("suggestions").get(0)
+                        .path("data")
+                        .path("address")
+                        .path("value").asText();
+                String kpp = resp.path("suggestions").get(0)
+                        .path("data")
+                        .path("kpp").asText();
+                String ogrn = resp.path("suggestions").get(0)
+                        .path("data")
+                        .path("ogrn").asText();
+                String inn = resp.path("suggestions").get(0)
+                        .path("data")
+                        .path("inn").asText();
+                String fullName = resp.path("suggestions").get(0)
+                        .path("data")
+                        .path("name")
+                        .path("full").asText();
 
-            return Mono.just(CompanyEntity.builder()
-                    .inn(inn)
-                    .ogrn(ogrn)
-                    .kpp(kpp)
-                    .name(fullName)
-                    .address(address)
-                    .build());
-        }).block();
+                company.set(Optional.ofNullable(CompanyEntity.builder()
+                        .inn(inn)
+                        .ogrn(ogrn)
+                        .kpp(kpp)
+                        .name(fullName)
+                        .address(address)
+                        .build()));
+            }
+        });
+        return company.get();
     }
 }

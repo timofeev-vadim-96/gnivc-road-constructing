@@ -51,7 +51,7 @@ public class UserController {
      * Password change by an authenticated user
      */
     @PutMapping("/password")
-    public ResponseEntity<String> changePassword(@RequestParam String newPassword, @RequestParam String email){
+    public ResponseEntity<String> setPassword(@RequestParam String newPassword, @RequestParam String email){
         return userService.setPassword(email, newPassword);
     }
 }

@@ -28,11 +28,10 @@ public class CompanyController {
      * Creating a company
      */
     @PostMapping()
-    public ResponseEntity<CompanyEntity> createCompany(@RequestParam String inn,
-                                              @RequestParam String email){
-        CompanyEntity company = companyService.createCompany(inn, email);
-        if (company == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        else return new ResponseEntity<>(company, HttpStatus.CREATED);
+    public ResponseEntity<CompanyEntity> createCompany(
+            @RequestParam String inn,
+            @RequestParam String email){
+        return companyService.createCompany(inn, email);
     }
 
     /**
@@ -55,12 +54,12 @@ public class CompanyController {
      * Viewing a company
      */
     @GetMapping()
-    public ResponseEntity<CompanyCardDto> getCompany(@RequestParam String companyId){
-        CompanyCardDto companyCard = companyService.getCompanyCard(companyId);
+    public ResponseEntity<CompanyCardDto> getCompany(@RequestParam String companyName){
+        CompanyCardDto companyCard = companyService.getCompanyCard(companyName);
         if (companyCard != null){
             return new ResponseEntity<>(companyCard, HttpStatus.OK);
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The company with id = " + companyId + " was not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The company with id = " + companyName + " was not found");
         }
     }
 
@@ -68,7 +67,7 @@ public class CompanyController {
      * Getting a list of companies with basic information
      */
     @GetMapping("/list")
-    public ResponseEntity<List<SimpleCompanyDto>> getCompanies(@RequestParam String companyId){ //solely for defining user roles on the Gateway side
+    public ResponseEntity<List<SimpleCompanyDto>> getCompanies(@RequestParam String companyName){ //solely for defining user roles on the Gateway side
         List<SimpleCompanyDto> companies = companyService.getCompanies();
         return new ResponseEntity<>(companies, HttpStatus.OK);
     }
@@ -77,7 +76,7 @@ public class CompanyController {
      * Getting a list of roles available in companies
      */
     @GetMapping("/roles")
-    public ResponseEntity<List<String>> getRoles(@RequestParam String companyId){ //solely for defining user roles on the Gateway side
+    public ResponseEntity<List<String>> getRoles(@RequestParam String companyName){ //solely for defining user roles on the Gateway side
         List<String> roles = companyService.getClientsRoles();
         return new ResponseEntity<>(roles, HttpStatus.OK);
     }
@@ -86,12 +85,12 @@ public class CompanyController {
      * Getting a list of company employees and their roles
      */
     @GetMapping("/users")
-    public ResponseEntity<List<CompanyUserDto>> getCompanyUsers(@RequestParam String companyId){
-        List<CompanyUserDto> users = userService.getCompanyUsers(companyId);
+    public ResponseEntity<List<CompanyUserDto>> getCompanyUsers(@RequestParam String companyName){
+        List<CompanyUserDto> users = userService.getCompanyUsers(companyName);
         if (users != null){
             return new ResponseEntity<>(users, HttpStatus.OK);
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The company with id = " + companyId + " was not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The company with id = " + companyName + " was not found");
         }
     }
 
@@ -100,12 +99,12 @@ public class CompanyController {
      */
     @PostMapping("/admin/user")
     public ResponseEntity<String> registerCompanyUserByAdmin(
-            @RequestParam(name = "companyId") String companyId,
+            @RequestParam(name = "companyName") String companyName,
             @Valid @RequestBody UserDto userDto){
         if (userDto.getClientRole() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The user's role in the company is not defined");
         }
-        else return userService.createClientUser(companyId, userDto);
+        else return userService.createClientUser(companyName, userDto);
     }
 
     /**
@@ -113,12 +112,12 @@ public class CompanyController {
      */
     @PostMapping("/logist/user")
     public ResponseEntity<String> registerCompanyUserByLogist(
-            @RequestParam(name = "companyId") String companyId,
+            @RequestParam(name = "companyName") String companyName,
             @Valid @RequestBody UserDto userDto){
         if (userDto.getClientRole() == null || !userDto.getClientRole().equals(ClientRole.ROLE_DRIVER)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The role of the user registered by the " +
                     "logistician in the company should not be different from driver");
         }
-        else return userService.createClientUser(companyId, userDto);
+        else return userService.createClientUser(companyName, userDto);
     }
 }

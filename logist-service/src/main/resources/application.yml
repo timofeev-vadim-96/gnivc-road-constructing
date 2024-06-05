@@ -2,13 +2,15 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/gnivc_logist_db
     username: postgres
-    password: root
+    password: admin
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
   application:
     name: logist-ms
+  kafka:
+    bootstrap-servers: localhost:9092
 
 server:
   error:

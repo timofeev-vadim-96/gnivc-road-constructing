@@ -1,4 +1,4 @@
-package ru.gnivc.issueservice;
+package ru.gnivc.logistservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

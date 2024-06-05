@@ -38,16 +38,17 @@ public class CompanyController {
      * Updating the company
      */
     @PutMapping()
-    public ResponseEntity<Void> updateCompany(@RequestParam long id){
-        return null;
+    public ResponseEntity<CompanyEntity> updateCompany(@RequestParam String inn,
+                                              @RequestParam String companyName){
+        return companyService.updateCompany(inn, companyName);
     }
 
     /**
      * Deleting a company
      */
     @DeleteMapping()
-    public ResponseEntity<Void> removeCompany(@RequestParam long id){
-        return null;
+    public ResponseEntity<Void> removeCompany(@RequestParam String companyName){
+        return companyService.remove(companyName);
     }
 
     /**

@@ -40,6 +40,16 @@ public class UserService {
     private final CompanyUserService companyUserService;
     private final Map<String, PasswordResetBox> resetCodesByEmailMap = new ConcurrentHashMap<>();
 
+    public ResponseEntity<UserEntity> getUserById(long id){
+        Optional<UserEntity> user = userDao.findById(id);
+        if (user.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("User with id = %s not found", id));
+        }
+        else {
+            return new ResponseEntity<>(user.get(), HttpStatus.OK);
+        }
+    }
+
     @Transactional
     public ResponseEntity<String> editUser(String email, UserDto userDto) {
         Optional<UserEntity> userEntityWithNewEmail = userDao.findByEmail(userDto.getEmail());
@@ -48,7 +58,7 @@ public class UserService {
         Optional<UserEntity> userEntityWithOldEmail = userDao.findByEmail(email);
         Optional<UserRepresentation> userInKeycloakWithOldEmail = keycloakService.findUserByMail(email);
         String answer;
-        if (userEntityWithNewEmail.isPresent() || userInKeycloakWithNewEmail.isPresent()) {
+        if ((userEntityWithNewEmail.isPresent() || userInKeycloakWithNewEmail.isPresent()) && !email.equals(userDto.getEmail())) {
             answer = String.format("The user with an email: %s is already exists. You can't change your" +
                     "email to someone else's", userDto.getEmail());
             return new ResponseEntity<>(answer, HttpStatus.BAD_REQUEST);
@@ -60,10 +70,40 @@ public class UserService {
             user.setEmail(userDto.getEmail());
             user.setFirstName(userDto.getFirstName());
             user.setLastName(userDto.getLastName());
-            userDao.save(user);
+
             keycloakService.updateUser(userDto, email);
-            answer = "The user's data has been updated";
-            return new ResponseEntity<>(answer, HttpStatus.ACCEPTED);
+            userInKeycloakWithNewEmail = keycloakService.findUserByMail(userDto.getEmail());
+            boolean isUpdated = compareUsersAfterUpdate(user, userInKeycloakWithNewEmail);
+            if (!isUpdated) {
+                answer = "There was a problem when trying to update user data";
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, answer);
+            } else {
+                userDao.save(user);
+                answer = "The user's data has been updated";
+                return new ResponseEntity<>(answer, HttpStatus.ACCEPTED);
+            }
+        }
+    }
+
+    private boolean compareUsersAfterUpdate(UserEntity user, Optional<UserRepresentation> userRepresentation){
+        if (userRepresentation.isEmpty()) return false;
+        else {
+            UserRepresentation updatedUser = userRepresentation.get();
+            return user.getEmail().equals(updatedUser.getEmail()) &&
+                    user.getFirstName().equals(updatedUser.getFirstName()) &&
+                            user.getLastName().equals(updatedUser.getLastName());
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<Void> removeUserById(long userId) {
+        Optional<UserEntity> user = userDao.findById(userId);
+        if (user.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("User with id = %s not found", userId));
+        } else {
+            userDao.delete(user.get());
+            keycloakService.removeUser(user.get().getEmail());
+            return new ResponseEntity<>(HttpStatus.OK);
         }
     }
 

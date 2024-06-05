@@ -40,39 +40,51 @@ public class SecurityConfig {
                 .authorizeExchange(requests -> {
                     requests.pathMatchers("openid-connect/**").permitAll();
 
+                    //---portal-ms
                     //user
-                    //новый юзер - REGISTRATOR
                     requests.pathMatchers(HttpMethod.POST, "portal/v1/user").permitAll();
-                    //изменение своего аккаунта - здесь используется email пользователя
                     requests.pathMatchers(HttpMethod.PUT, "portal/v1/user").authenticated();
-                    //запрос на сброс пароля - выслать на почту секретный код
-                    requests.pathMatchers(HttpMethod.GET, "portal/v1/user/password/reset-request").permitAll();
-                    //сброс пароля и высылка на почту нового - здесь ожидаю секретный код с почты
-                    requests.pathMatchers(HttpMethod.POST, "portal/v1/user/password").permitAll();
-                    //смена пароля - пароль в теле запроса
-                    requests.pathMatchers(HttpMethod.PUT, "portal/v1/user/password").authenticated();
-
-                    //company
-                    //регистрация компании - здесь используется email пользователя
-                    requests.pathMatchers(HttpMethod.POST, "portal/v1/company").hasRole(Role.REGISTRATOR.name());
-                    //регистрация сотрудников компаний админом - все виды ролей
-                    requests.pathMatchers(HttpMethod.POST, "portal/v1/company/admin/user").hasRole(Role.ADMIN.name());
-                    //регистрация сотрудников компаний логистом - только водители
-                    requests.pathMatchers(HttpMethod.POST, "portal/v1/company/logist/user").hasRole(Role.LOGIST.name());
-                    //регистрация транспортного средства
-                    requests.pathMatchers(HttpMethod.POST, "portal/v1/company/vehicle")
+                    requests.pathMatchers(HttpMethod.GET, "portal/v1/user/{userId}")
                             .hasAnyRole(Role.ADMIN.name(), Role.LOGIST.name());
-                    //удаление компании
+                    requests.pathMatchers(HttpMethod.DELETE, "portal/v1/user/{userId}").hasRole(Role.ADMIN.name());
+                    requests.pathMatchers(HttpMethod.GET, "portal/v1/user/password/reset-request").permitAll();
+                    requests.pathMatchers(HttpMethod.POST, "portal/v1/user/password").permitAll();
+                    requests.pathMatchers(HttpMethod.PUT, "portal/v1/user/password").authenticated();
+                    //company
+                    requests.pathMatchers(HttpMethod.POST, "portal/v1/company").hasRole(Role.REGISTRATOR.name());
+                    requests.pathMatchers(HttpMethod.PUT, "portal/v1/company").hasRole(Role.ADMIN.name());
+                    requests.pathMatchers(HttpMethod.POST, "portal/v1/company/admin/user").hasRole(Role.ADMIN.name());
+                    requests.pathMatchers(HttpMethod.POST, "portal/v1/company/logist/user").hasRole(Role.LOGIST.name());
                     requests.pathMatchers(HttpMethod.DELETE, "portal/v1/company").hasRole(Role.ADMIN.name());
-                    //карточка компании
                     requests.pathMatchers(HttpMethod.GET, "portal/v1/company").hasRole(Role.ADMIN.name());
-                    //список компаний
                     requests.pathMatchers(HttpMethod.GET, "portal/v1/company/list").hasRole(Role.ADMIN.name());
-                    //список доступных ролей в компаниях
                     requests.pathMatchers(HttpMethod.GET, "portal/v1/company/roles")
                             .hasAnyRole(Role.REGISTRATOR.name(), Role.ADMIN.name(), Role.LOGIST.name());
-                    //список сотрудников компании
                     requests.pathMatchers(HttpMethod.GET, "portal/v1/company/users").hasRole(Role.ADMIN.name());
+                    //vehicles
+                    requests.pathMatchers(HttpMethod.POST, "portal/v1/company/vehicle")
+                            .hasAnyRole(Role.ADMIN.name(), Role.LOGIST.name());
+                    requests.pathMatchers(HttpMethod.DELETE, "portal/v1/company/vehicle/{vehicleId}")
+                            .hasAnyRole(Role.ADMIN.name(), Role.LOGIST.name());
+                    requests.pathMatchers(HttpMethod.GET, "portal/v1/company/vehicle/{vehicleId}")
+                            .hasAnyRole(Role.ADMIN.name(), Role.LOGIST.name());
+                    requests.pathMatchers(HttpMethod.GET, "portal/v1/company/vehicle/list")
+                            .hasAnyRole(Role.ADMIN.name(), Role.LOGIST.name());
+
+                    //logist-ms
+                    //task
+                    requests.pathMatchers(HttpMethod.POST, "/logist/v1/task").hasRole(Role.LOGIST.name());
+                    requests.pathMatchers(HttpMethod.GET, "/logist/v1/task/{taskId}").hasRole(Role.LOGIST.name());
+                    requests.pathMatchers(HttpMethod.DELETE, "/logist/v1/task/{taskId}").hasRole(Role.LOGIST.name());
+                    requests.pathMatchers(HttpMethod.GET, "/logist/v1/task/list").hasRole(Role.LOGIST.name());
+                    //trip
+                    requests.pathMatchers(HttpMethod.GET, "/logist/v1/trip/{tripId}").hasRole(Role.LOGIST.name());
+                    requests.pathMatchers(HttpMethod.GET, "/logist/v1/trip/list").hasRole(Role.LOGIST.name());
+                    requests.pathMatchers(HttpMethod.GET, "/logist/v1/trip/{tripId}/events").hasRole(Role.LOGIST.name());
+                    requests.pathMatchers(HttpMethod.GET, "/logist/v1/trip/{tripId}/locations").hasRole(Role.LOGIST.name());
+                    requests.pathMatchers(HttpMethod.POST, "/logist/v1/trip").hasRole(Role.LOGIST.name());
+                    requests.pathMatchers(HttpMethod.DELETE, "/logist/v1/trip/{tripId}").hasRole(Role.LOGIST.name());
+
                 })
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt

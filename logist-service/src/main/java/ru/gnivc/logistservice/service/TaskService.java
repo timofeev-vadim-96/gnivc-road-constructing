@@ -1,0 +1,142 @@
+package ru.gnivc.logistservice.service;
+
+import jakarta.ws.rs.NotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+import ru.gnivc.logistservice.dao.CompanyDao;
+import ru.gnivc.logistservice.dao.DriverDao;
+import ru.gnivc.logistservice.dao.TaskDao;
+import ru.gnivc.logistservice.dao.VehicleDao;
+import ru.gnivc.logistservice.dto.input.CompanyDto;
+import ru.gnivc.logistservice.dto.input.DriverDto;
+import ru.gnivc.logistservice.dto.input.TaskDto;
+import ru.gnivc.logistservice.dto.input.VehicleDto;
+import ru.gnivc.logistservice.model.CompanyEntity;
+import ru.gnivc.logistservice.model.DriverEntity;
+import ru.gnivc.logistservice.model.TaskEntity;
+import ru.gnivc.logistservice.model.VehicleEntity;
+import ru.gnivc.logistservice.provider.PortalProvider;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+public class TaskService {
+    private final PortalProvider portalProvider;
+    private final CompanyDao companyDao;
+    private final DriverDao driverDao;
+    private final VehicleDao vehicleDao;
+    private final TaskDao taskDao;
+
+    public ResponseEntity<Void> removeById(long taskId, String companyName){
+        Optional<TaskEntity> task = taskDao.findById(taskId);
+        if (task.isEmpty()) {
+            String answer = String.format("Task with id = %s not found", taskId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, answer);
+        } else if (!task.get().getCompany().getCompanyName().equals(companyName)) {
+            String answer = String.format("The task with id = %s was created by a logistics specialist from another company", taskId);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, answer);
+        } else {
+            taskDao.delete(task.get());
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+    }
+
+    public ResponseEntity<List<TaskEntity>> findAllByCompanyName(String companyName) {
+        try {
+            CompanyEntity company = getCompany(companyName);
+            return new ResponseEntity<>(taskDao.findAllByCompany(company), HttpStatus.OK);
+        } catch (NotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    public ResponseEntity<TaskEntity> findById(long taskId, String companyName) {
+        Optional<TaskEntity> task = taskDao.findById(taskId);
+        if (task.isEmpty()) {
+            String answer = String.format("Task with id = %s not found", taskId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, answer);
+        } else if (!task.get().getCompany().getCompanyName().equals(companyName)) {
+            String answer = String.format("The task with id = %s was created by a logistics specialist from another company", taskId);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, answer);
+        } else {
+            return new ResponseEntity<>(task.get(), HttpStatus.OK);
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<TaskEntity> create(TaskDto taskDto, String companyName) {
+        try {
+            CompanyEntity company = getCompany(companyName);
+            DriverEntity driver = getDriver(taskDto.getDriverId(), companyName);
+            VehicleEntity vehicle = getVehicle(taskDto.getVehicleId(), companyName);
+
+            TaskEntity task = TaskEntity.builder()
+                    .company(company)
+                    .driver(driver)
+                    .vehicle(vehicle)
+                    .startPoint(taskDto.getStartPoint())
+                    .finishPoint(taskDto.getFinishPoint())
+                    .cargoDescription(taskDto.getCargoDescription())
+                    .build();
+            TaskEntity savedTask = taskDao.save(task);
+            return new ResponseEntity<>(savedTask, HttpStatus.CREATED);
+        } catch (NotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    private CompanyEntity getCompany(String companyName) throws NotFoundException {
+        Optional<CompanyEntity> company = companyDao.findByCompanyName(companyName);
+        if (company.isEmpty()) {
+            CompanyDto companyFromPortal = portalProvider.getCompanyByName(companyName);
+            if (companyFromPortal == null) {
+                throw new NotFoundException("Company with companyName = " + companyName + " not found in portal-ms");
+            } else {
+                CompanyEntity newCompany = new CompanyEntity(companyFromPortal.getId(), companyName);
+                return companyDao.save(newCompany);
+            }
+        } else {
+            return company.get();
+        }
+    }
+
+    private DriverEntity getDriver(long driverId, String companyName) throws NotFoundException {
+        Optional<DriverEntity> driver = driverDao.findById(driverId);
+        if (driver.isEmpty()) {
+            DriverDto driverFromPortal = portalProvider.getDriverById(driverId, companyName);
+            if (driverFromPortal == null) {
+                throw new NotFoundException("Driver with id = " + driverId + " not found in portal-ms");
+            } else {
+                DriverEntity newDriver = DriverEntity.builder()
+                        .id(driverFromPortal.getId())
+                        .firstName(driverFromPortal.getFirstName())
+                        .lastName(driverFromPortal.getLastName())
+                        .build();
+                return driverDao.save(newDriver);
+            }
+        } else {
+            return driver.get();
+        }
+    }
+
+    private VehicleEntity getVehicle(long vehicleId, String companyName) throws NotFoundException {
+        Optional<VehicleEntity> vehicle = vehicleDao.findById(vehicleId);
+        if (vehicle.isEmpty()) {
+            VehicleDto vehicleFromPortal = portalProvider.getVehicleById(vehicleId, companyName);
+            if (vehicleFromPortal == null) {
+                throw new NotFoundException("Vehicle with id = " + vehicleId + " not found in portal-ms");
+            } else {
+                VehicleEntity newVehicle = new VehicleEntity(vehicleFromPortal.getId(), vehicleFromPortal.getStateNumber());
+                return vehicleDao.save(newVehicle);
+            }
+        } else {
+            return vehicle.get();
+        }
+    }
+}

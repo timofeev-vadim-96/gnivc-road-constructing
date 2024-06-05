@@ -10,6 +10,8 @@ import ru.gnivc.portalservice.dto.input.VehicleDto;
 import ru.gnivc.portalservice.model.VehicleEntity;
 import ru.gnivc.portalservice.service.VehicleService;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("portal/v1/company/vehicle")
@@ -30,5 +32,25 @@ public class VehicleController {
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The company with name = " + companyName + " was not found");
         }
+    }
+
+    @GetMapping("/{vehicleId}")
+    public ResponseEntity<VehicleEntity> getVehicleById(@PathVariable long vehicleId,
+                                                        @RequestParam String companyName){
+        return vehicleService.getVehicleById(companyName, vehicleId);
+    }
+
+    @DeleteMapping("/{vehicleId}")
+    public ResponseEntity<Void> removeVehicleById(@PathVariable long vehicleId,
+                                                  @RequestParam String companyName){
+        return vehicleService.removeVehicleById(companyName, vehicleId);
+    }
+
+    /**
+     * Getting a list of company vehicles
+     */
+    @GetMapping("/list")
+    public ResponseEntity<List<VehicleEntity>> getCompanyVehicles(@RequestParam String companyName){
+        return vehicleService.getCompanyVehicles(companyName);
     }
 }

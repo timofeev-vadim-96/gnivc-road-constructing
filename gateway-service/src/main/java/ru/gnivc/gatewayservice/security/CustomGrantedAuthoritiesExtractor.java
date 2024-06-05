@@ -19,6 +19,9 @@ public class CustomGrantedAuthoritiesExtractor implements Converter<Jwt, Collect
 
     @Override
     public Collection<GrantedAuthority> convert(Jwt jwt) {
+        String email = jwt.getClaimAsString("email");
+//        requestFilter.overrideUsersEmail(email);
+
         List<String> realmRoles = getRealmRoles(jwt);
         Set<GrantedAuthority> realmAuthorities = realmRoles.stream()
                 .filter(role -> role.startsWith("ROLE_"))

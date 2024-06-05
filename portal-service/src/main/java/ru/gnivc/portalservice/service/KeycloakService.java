@@ -109,8 +109,11 @@ public class KeycloakService {
                 .stream().findFirst();
     }
 
-    public void removeUser(String userId) {
-        usersManager.delete(userId);
+    public void removeUser(String email) {
+        Optional<UserRepresentation> user = findUserByMail(email);
+        if (user.isPresent()) {
+            usersManager.delete(user.get().getId());
+        }
     }
 
     public void assignRealmRoleToUser(String userId, RealmRole role) {
@@ -118,7 +121,7 @@ public class KeycloakService {
         usersManager.get(userId).roles().realmLevel().add(Collections.singletonList(realmRole));
     }
 
-    public ClientRepresentation findClientById(String clientName) {
+    public ClientRepresentation findClientByName(String clientName) {
         String clientUUID = keycloakCompaniesDao.findByName(clientName).get().getId();
         return clientsManager.get(clientUUID).toRepresentation();
     }
@@ -176,5 +179,22 @@ public class KeycloakService {
         roleRepresentation.setClientRole(true);
 
         clientsManager.get(clientId).roles().create(roleRepresentation);
+    }
+
+    public void updateClientName(String newCompanyName) {
+        ClientRepresentation client = findClientByName(newCompanyName);
+        if (!client.getClientId().equals(newCompanyName)) {
+            KeycloakCompany keycloakCompany = keycloakCompaniesDao.findByName(client.getName()).get();
+            keycloakCompany.setName(newCompanyName);
+            keycloakCompaniesDao.save(keycloakCompany);
+
+            client.setClientId(newCompanyName);
+            clientsManager.get(client.getId()).update(client);
+        }
+    }
+
+    public void removeClient(String companyName) {
+        ClientRepresentation client = findClientByName(companyName);
+        clientsManager.get(client.getId()).remove();
     }
 }

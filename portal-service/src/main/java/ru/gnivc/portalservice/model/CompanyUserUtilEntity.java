@@ -21,11 +21,11 @@ public class CompanyUserUtilEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne
+    @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "company_id", referencedColumnName = "id")
     private CompanyEntity companyId;
-    @OneToOne
+    @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UserEntity userId;

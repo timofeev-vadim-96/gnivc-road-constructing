@@ -60,7 +60,7 @@ spring:
         - id: logist
           uri: lb://logist-ms
           predicates:
-            - Path=/logist-ms/**
+            - Path=/logist/**
 
 keycloak:
   auth-server-uri: http://localhost:8080

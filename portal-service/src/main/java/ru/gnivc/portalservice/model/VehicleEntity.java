@@ -23,7 +23,9 @@ public class VehicleEntity {
     private String vin;
     @Column(name = "release_year")
     private LocalDate releaseYear;
-    @OneToOne()
+    @Column(name = "state_number", length = 9) //макс длина гос номера в РФ
+    private String stateNumber;
+    @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "company")
     private CompanyEntity company;

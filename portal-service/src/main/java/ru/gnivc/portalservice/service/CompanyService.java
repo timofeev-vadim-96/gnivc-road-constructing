@@ -36,15 +36,10 @@ public class CompanyService {
         Optional<UserRepresentation> user = keycloakService.findUserByMail(email);
         if (user.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    String.format("The user with email: %s was not found", email));
+                    String.format("User with email: %s was not found", email));
         } else {
             String userId = user.get().getId();
-            JsonNode companyDetails = daDataService.getCompanyDetailsByINN(inn);
-            log.info("company details from DaData: {}", companyDetails);
-
-            Optional<CompanyEntity> company = daDataService.serializeResponseToCompany(companyDetails);
-            if (company.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    String.format("The company with inn: %s not found.", inn));
+            Optional<CompanyEntity> company = getCompanyFromDaData(inn);
 
             CompanyEntity saved = companyDao.save(company.get());
             companyUserService.bindUserWithCompany(email, company.get().getName(), ClientRole.ROLE_ADMIN);
@@ -56,7 +51,7 @@ public class CompanyService {
                 return new ResponseEntity<>(saved, HttpStatus.CREATED);
             } else {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        String.format("The company with inn: %s was already exists.", inn));
+                        String.format("Company with inn: %s was already exists.", inn));
             }
         }
     }
@@ -86,6 +81,55 @@ public class CompanyService {
                     company.getOgrn(),
                     logists.get(),
                     drivers.get());
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<CompanyEntity> updateCompany(String inn, String companyName) {
+        Optional<CompanyEntity> companyFromDaDataOptional = getCompanyFromDaData(inn);
+        Optional<CompanyEntity> companyOptional = companyDao.findByName(companyName);
+        if (companyOptional.isEmpty() || companyFromDaDataOptional.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    String.format("Company with inn: %s not found.", inn));
+        } else {
+            CompanyEntity company = getCompanyEntity(companyFromDaDataOptional.get(), companyOptional.get());
+
+            CompanyEntity saved = companyDao.save(company);
+            keycloakService.updateClientName(saved.getName());
+            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        }
+    }
+
+    private static CompanyEntity getCompanyEntity(CompanyEntity companyFromDaData, CompanyEntity company) {
+        company.setName(companyFromDaData.getName());
+        company.setOgrn(companyFromDaData.getOgrn());
+        company.setKpp(companyFromDaData.getKpp());
+        company.setAddress(companyFromDaData.getAddress());
+        return company;
+    }
+
+    private Optional<CompanyEntity> getCompanyFromDaData(String inn) {
+        JsonNode companyDetails = daDataService.getCompanyDetailsByINN(inn);
+        log.info("Company details from DaData: {}", companyDetails);
+
+        Optional<CompanyEntity> company = daDataService.serializeResponseToCompany(companyDetails);
+        if (company.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    String.format("Company with inn: %s not found.", inn));
+        }
+        return company;
+    }
+
+    @Transactional
+    public ResponseEntity<Void> remove(String companyName) {
+        Optional<CompanyEntity> company = companyDao.findByName(companyName);
+        if (company.isEmpty()){
+            String answer = String.format("Company with id = %s not found", companyName);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, answer);
+        } else {
+            companyDao.delete(company.get());
+            keycloakService.removeClient(companyName);
+            return new ResponseEntity<>(HttpStatus.OK);
         }
     }
 }

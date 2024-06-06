@@ -2,6 +2,7 @@ package ru.gnivc.logistservice.service;
 
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class TaskService {
     private final PortalProvider portalProvider;
@@ -34,17 +36,41 @@ public class TaskService {
     private final TaskDao taskDao;
 
     public ResponseEntity<Void> removeById(long taskId, String companyName){
-        Optional<TaskEntity> task = taskDao.findById(taskId);
-        if (task.isEmpty()) {
+        Optional<TaskEntity> taskOptional = taskDao.findById(taskId);
+        if (taskOptional.isEmpty()) {
             String answer = String.format("Task with id = %s not found", taskId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, answer);
-        } else if (!task.get().getCompany().getCompanyName().equals(companyName)) {
+        } else if (!taskOptional.get().getCompany().getCompanyName().equals(companyName)) {
             String answer = String.format("The task with id = %s was created by a logistics specialist from another company", taskId);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, answer);
         } else {
-            taskDao.delete(task.get());
+            TaskEntity task = taskOptional.get();
+
+            taskDao.delete(task);
+
+            removeOrphanEntities(task.getCompany(), task.getDriver(), task.getVehicle());
+
             return new ResponseEntity<>(HttpStatus.OK);
         }
+    }
+
+    private void removeOrphanEntities(CompanyEntity company, DriverEntity driver, VehicleEntity vehicle) {
+        List<TaskEntity> tasks = taskDao.findAllByCompany(company);
+
+        int companyCounter = 0;
+        int driverCounter = 0;
+        int vehicleCounter = 0;
+        for (TaskEntity task: tasks){
+            if (companyCounter > 0 && driverCounter > 0 && vehicleCounter > 0) break;
+
+            if (task.getCompany().equals(company)) companyCounter++;
+            if (task.getDriver().equals(driver)) driverCounter++;
+            if (task.getVehicle().equals(vehicle)) vehicleCounter++;
+        }
+
+        if (companyCounter == 0) companyDao.delete(company);
+        if (driverCounter == 0) driverDao.delete(driver);
+        if (vehicleCounter == 0) vehicleDao.delete(vehicle);
     }
 
     public ResponseEntity<List<TaskEntity>> findAllByCompanyName(String companyName) {
@@ -99,7 +125,9 @@ public class TaskService {
                 throw new NotFoundException("Company with companyName = " + companyName + " not found in portal-ms");
             } else {
                 CompanyEntity newCompany = new CompanyEntity(companyFromPortal.getId(), companyName);
-                return companyDao.save(newCompany);
+                CompanyEntity saved = companyDao.save(newCompany);
+                log.info("saved company: {}", saved);
+                return saved;
             }
         } else {
             return company.get();
@@ -118,7 +146,9 @@ public class TaskService {
                         .firstName(driverFromPortal.getFirstName())
                         .lastName(driverFromPortal.getLastName())
                         .build();
-                return driverDao.save(newDriver);
+                DriverEntity saved = driverDao.save(newDriver);
+                log.info("saved driver: {}", saved);
+                return saved;
             }
         } else {
             return driver.get();
@@ -133,7 +163,9 @@ public class TaskService {
                 throw new NotFoundException("Vehicle with id = " + vehicleId + " not found in portal-ms");
             } else {
                 VehicleEntity newVehicle = new VehicleEntity(vehicleFromPortal.getId(), vehicleFromPortal.getStateNumber());
-                return vehicleDao.save(newVehicle);
+                VehicleEntity saved = vehicleDao.save(newVehicle);
+                log.info("saved vehicle: {}", saved);
+                return saved;
             }
         } else {
             return vehicle.get();

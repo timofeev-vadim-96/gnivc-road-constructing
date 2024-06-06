@@ -11,8 +11,6 @@ import ru.gnivc.logistservice.dao.TripDao;
 import ru.gnivc.logistservice.dao.TripEventDao;
 import ru.gnivc.logistservice.dao.TripLocationDao;
 import ru.gnivc.logistservice.dto.output.TripDto;
-import ru.gnivc.logistservice.dto.output.TripWithEventsDto;
-import ru.gnivc.logistservice.dto.output.TripWithLocationPointsDto;
 import ru.gnivc.logistservice.mapper.TripMapper;
 import ru.gnivc.logistservice.model.TaskEntity;
 import ru.gnivc.logistservice.model.TripEntity;
@@ -49,7 +47,7 @@ public class TripService {
             TripEntity savedTrip = tripDao.save(trip);
 
             TripEventEntity tripEvent = TripEventEntity.builder()
-                    .event(TripEventEnum.TRIP_CREATED)
+                    .event(TripEventEnum.TRIP_CREATED.name())
                     .time(LocalDateTime.now())
                     .trip(savedTrip)
                     .build();
@@ -104,6 +102,9 @@ public class TripService {
 
     private TripEventEntity getLatestEvent(TripEntity trip) {
         List<TripEventEntity> events = tripEventDao.findAllByTrip(trip);
+        return getLatestEvent(events);
+    }
+    private TripEventEntity getLatestEvent(List<TripEventEntity> events) {
         TripEventEntity lastEvent = events.getFirst();
         for (TripEventEntity event : events) {
             if (lastEvent.getTime().isBefore(event.getTime())) {
@@ -113,7 +114,7 @@ public class TripService {
         return lastEvent;
     }
 
-    public ResponseEntity<TripWithEventsDto> getTripWithEvents(long tripId, String companyName) {
+    public ResponseEntity<List<TripEventEntity>> getTripWithEvents(long tripId, String companyName) {
         Optional<TripEntity> trip = tripDao.findById(tripId);
         if (trip.isEmpty()) {
             String answer = String.format("Trip with id = %s not found", tripId);
@@ -123,14 +124,11 @@ public class TripService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, answer);
         } else {
             List<TripEventEntity> tripEvents = tripEventDao.findAllByTrip(trip.get());
-            TripEventEntity lastEvent = getLatestEvent(trip.get());
-            TripWithEventsDto tripWithEvents = TripMapper
-                    .convertTripToDtoWithEvents(trip.get(), lastEvent, tripEvents);
-            return new ResponseEntity<>(tripWithEvents, HttpStatus.OK);
+            return new ResponseEntity<>(tripEvents, HttpStatus.OK);
         }
     }
 
-    public ResponseEntity<TripWithLocationPointsDto> getTripWithLocaitonPoints(long tripId, String companyName) {
+    public ResponseEntity<List<TripLocationEntity>> getTripWithLocaitonPoints(long tripId, String companyName) {
         Optional<TripEntity> trip = tripDao.findById(tripId);
         if (trip.isEmpty()) {
             String answer = String.format("Trip with id = %s not found", tripId);
@@ -140,10 +138,7 @@ public class TripService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, answer);
         } else {
             List<TripLocationEntity> locationPoints = tripLocationDao.findAllByTrip(trip.get());
-            TripEventEntity lastEvent = getLatestEvent(trip.get());
-            TripWithLocationPointsDto tripWithLocationPoints = TripMapper
-                    .convertTripToDtoWithLocationPoints(trip.get(), lastEvent, locationPoints);
-            return new ResponseEntity<>(tripWithLocationPoints, HttpStatus.OK);
+            return new ResponseEntity<>(locationPoints, HttpStatus.OK);
         }
     }
 }

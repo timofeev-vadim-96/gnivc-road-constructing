@@ -4,10 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.gnivc.logistservice.dto.output.TripDto;
-import ru.gnivc.logistservice.dto.output.TripWithEventsDto;
-import ru.gnivc.logistservice.dto.output.TripWithLocationPointsDto;
 import ru.gnivc.logistservice.model.TripEntity;
 import ru.gnivc.logistservice.model.TripEventEntity;
+import ru.gnivc.logistservice.model.TripLocationEntity;
 import ru.gnivc.logistservice.service.TripService;
 
 import java.util.List;
@@ -37,13 +36,13 @@ public class TripController {
     }
 
     @GetMapping("/{tripId}/events")
-    public ResponseEntity<TripWithEventsDto> getTripEvents(@PathVariable long tripId,
+    public ResponseEntity<List<TripEventEntity>> getTripEvents(@PathVariable long tripId,
                                                            @RequestParam String companyName){
         return tripService.getTripWithEvents(tripId, companyName);
     }
     @GetMapping("/{tripId}/locations")
-    public ResponseEntity<TripWithLocationPointsDto> getTripLocationPoints(@PathVariable long tripId,
-                                                                           @RequestParam String companyName){
+    public ResponseEntity<List<TripLocationEntity>> getTripLocationPoints(@PathVariable long tripId,
+                                                                          @RequestParam String companyName){
         return tripService.getTripWithLocaitonPoints(tripId, companyName);
     }
 

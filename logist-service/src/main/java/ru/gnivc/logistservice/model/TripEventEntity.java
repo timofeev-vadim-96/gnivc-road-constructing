@@ -1,6 +1,7 @@
 package ru.gnivc.logistservice.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,14 +22,17 @@ public class TripEventEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private TripEventEnum event;
+    @NotNull
+    private String event;
+    @NotNull
     private LocalDateTime time;
-    @ManyToOne
+    @NotNull
+    @ManyToOne()
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "trip")
     private TripEntity trip;
 
-    public TripEventEntity(TripEventEnum event, LocalDateTime time, TripEntity trip) {
+    public TripEventEntity(String event, LocalDateTime time, TripEntity trip) {
         this.event = event;
         this.time = time;
         this.trip = trip;

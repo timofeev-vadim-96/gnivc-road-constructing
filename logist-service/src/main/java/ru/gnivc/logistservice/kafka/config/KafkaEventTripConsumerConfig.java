@@ -1,7 +1,8 @@
 package ru.gnivc.logistservice.kafka.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +11,6 @@ import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
-import ru.gnivc.logistservice.dto.input.TripEventDto;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,12 +26,9 @@ public class KafkaEventTripConsumerConfig {
      */
     public Map<String, Object> consumerConfig(){
         HashMap<String, Object> props = new HashMap<>();
-        //конфиг сервера (его ip и порт)
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        //ключ тоже будет строкой
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        //будем отправлять строки брокеру
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, TripEventDeserializer.class);
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         return props;
     }
 
@@ -39,7 +36,7 @@ public class KafkaEventTripConsumerConfig {
      * Фабрика слушателей
      */
     @Bean
-    public ConsumerFactory<String, TripEventDto> tripEventConsumerFactory(){
+    public ConsumerFactory<String, String> tripEventConsumerFactory(){
         return new DefaultKafkaConsumerFactory<>(consumerConfig());
     }
 
@@ -47,9 +44,9 @@ public class KafkaEventTripConsumerConfig {
      * Контейнер для слушателей событий рейса
      */
     @Bean
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, TripEventDto>>
-    tripEventListenerContainerFactory(ConsumerFactory<String, TripEventDto> consumerFactory){
-        ConcurrentKafkaListenerContainerFactory<String, TripEventDto>
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>>
+    tripEventListenerContainerFactory(@Qualifier("tripEventConsumerFactory") ConsumerFactory<String, String> consumerFactory){
+        ConcurrentKafkaListenerContainerFactory<String, String>
                 factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
         return factory;

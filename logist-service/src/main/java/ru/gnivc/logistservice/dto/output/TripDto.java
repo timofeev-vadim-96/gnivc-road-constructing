@@ -19,5 +19,5 @@ public class TripDto {
     private LocalDateTime creationTime;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private TripEventEnum currentStatus;
+    private String currentStatus;
 }

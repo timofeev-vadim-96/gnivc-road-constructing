@@ -21,11 +21,13 @@ public class TripLocationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotNull
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "trip")
     private TripEntity trip;
     @NotNull
     private Point2D.Double location;
+    @NotNull
     private LocalDateTime time;
 }

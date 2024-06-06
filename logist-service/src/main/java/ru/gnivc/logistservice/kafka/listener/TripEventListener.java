@@ -41,7 +41,7 @@ public class TripEventListener {
         try {
             event = jsonMapper.getTripEventDto(data);
         } catch (Exception e){
-            throw new RuntimeException("Exception when trying to parse JSON massage from Kafka.", e);
+            throw new RuntimeException("Exception when trying to parse JSON message from Kafka.", e);
         }
 
         Optional<TripEntity> tripOptional = tripDao.findById(event.getTripId());

@@ -25,7 +25,6 @@ public class TripLocationListener {
     private final TripDao tripDao;
     private final TripLocationDao tripLocationDao;
     private final JsonMapper jsonMapper;
-    private final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm";
 
     @KafkaListener(
             topics = "trip_car_location",
@@ -39,7 +38,7 @@ public class TripLocationListener {
         try {
             locationPoint = jsonMapper.getTripLocationDto(data);
         } catch (Exception e) {
-            throw new RuntimeException("Exception when trying to parse JSON massage from Kafka.", e);
+            throw new RuntimeException("Exception when trying to parse JSON message from Kafka.", e);
         }
 
         Optional<TripEntity> tripOptional = tripDao.findById(locationPoint.getTripId());

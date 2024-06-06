@@ -8,7 +8,6 @@ import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@EntityScan(basePackageClasses = { LogistServiceApplication.class, Jsr310JpaConverters.class })
 public class LogistServiceApplication {
 
     public static void main(String[] args) {

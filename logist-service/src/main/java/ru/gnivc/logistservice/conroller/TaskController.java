@@ -38,4 +38,11 @@ public class TaskController {
     public ResponseEntity<List<TaskEntity>> getAllByCompany(@RequestParam String companyName){
         return taskService.findAllByCompanyName(companyName);
     }
+
+    @GetMapping("/byDriver/{driverId}")
+    public ResponseEntity<List<TaskEntity>> getAllByDriver(@PathVariable long driverId,
+                                                           @RequestParam String companyName){
+        return taskService.getTaskByDriver(driverId, companyName);
+    }
+
 }

@@ -77,6 +77,7 @@ public class SecurityConfig {
                     requests.pathMatchers(HttpMethod.GET, "/logist/v1/task/{taskId}").hasRole(Role.LOGIST.name());
                     requests.pathMatchers(HttpMethod.DELETE, "/logist/v1/task/{taskId}").hasRole(Role.LOGIST.name());
                     requests.pathMatchers(HttpMethod.GET, "/logist/v1/task/list").hasRole(Role.LOGIST.name());
+                    requests.pathMatchers(HttpMethod.GET, "/logist/v1/task/byDriver/{driverId}").hasRole(Role.LOGIST.name());
                     //trip
                     requests.pathMatchers(HttpMethod.GET, "/logist/v1/trip/{tripId}").hasRole(Role.LOGIST.name());
                     requests.pathMatchers(HttpMethod.GET, "/logist/v1/trip/list").hasRole(Role.LOGIST.name());
@@ -85,6 +86,11 @@ public class SecurityConfig {
                     requests.pathMatchers(HttpMethod.POST, "/logist/v1/trip").hasRole(Role.LOGIST.name());
                     requests.pathMatchers(HttpMethod.DELETE, "/logist/v1/trip/{tripId}").hasRole(Role.LOGIST.name());
 
+                    //driver-ms
+                    requests.pathMatchers(HttpMethod.GET, "driver/v1/task/{driverId}").hasRole(Role.DRIVER.name());
+                    requests.pathMatchers(HttpMethod.POST, "driver/v1/trip").hasRole(Role.DRIVER.name());
+                    requests.pathMatchers(HttpMethod.POST, "driver/v1/location").hasRole(Role.DRIVER.name());
+                    requests.pathMatchers(HttpMethod.POST, "driver/v1/event").hasRole(Role.DRIVER.name());
                 })
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt

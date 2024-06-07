@@ -171,4 +171,14 @@ public class TaskService {
             return vehicle.get();
         }
     }
+
+    public ResponseEntity<List<TaskEntity>> getTaskByDriver(long driverId, String companyName){
+        try {
+            DriverEntity driver = getDriver(driverId, companyName);
+            List<TaskEntity> driverTasks = taskDao.findAllByDriver(driver);
+            return new ResponseEntity<>(driverTasks, HttpStatus.OK);
+        } catch (NotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package ru.gnivc.logistservice.kafka.listener;
 
+import com.sun.jdi.request.DuplicateRequestException;
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +50,14 @@ public class TripEventListener {
             throw new NotFoundException("Trip with id = " + event.getTripId() + " received from Kafka not found.");
         } else {
             TripEntity trip = tripOptional.get();
+
+            if (isTripEventUnique(event.getTripEventEnum(), trip)){
+                throw new DuplicateRequestException(
+                        String.format("For the trip with id = %d the event %s has already happened.",
+                                trip.getId(),
+                                event.getTripEventEnum().name()));
+            }
+
             boolean isUpdated = false;
             if (event.getTripEventEnum().equals(TripEventEnum.TRIP_STARTED)) {
                 trip.setStartTime(event.getTime());
@@ -67,5 +76,11 @@ public class TripEventListener {
             }
             tripEventDao.save(tripEventEntity);
         }
+    }
+
+    private boolean isTripEventUnique(TripEventEnum event, TripEntity trip){
+        return tripEventDao.findAllByTrip(trip)
+                .stream()
+                .anyMatch(tripEvent-> tripEvent.getEvent().equals(event.name()));
     }
 }

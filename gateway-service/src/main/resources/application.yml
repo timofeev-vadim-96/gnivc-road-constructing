@@ -55,7 +55,7 @@ spring:
         - id: dwh
           uri: lb://dwh-ms
           predicates:
-            - Path=/dwh-ms/**
+            - Path=/dwh/**
 
         - id: logist
           uri: lb://logist-ms

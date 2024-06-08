@@ -1,4 +1,4 @@
-package ru.gnivc.logistservice.kafka.listener;
+package ru.gnivc.logistservice.kafka.consumer.listener;
 
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import ru.gnivc.logistservice.dao.TripDao;
 import ru.gnivc.logistservice.dao.TripLocationDao;
 import ru.gnivc.logistservice.dto.input.TripLocationDto;
-import ru.gnivc.logistservice.mapper.JsonMapper;
+import ru.gnivc.logistservice.mapper.JsonConverter;
 import ru.gnivc.logistservice.model.TripEntity;
 import ru.gnivc.logistservice.model.TripLocationEntity;
 
@@ -24,7 +24,7 @@ import java.util.Optional;
 public class TripLocationListener {
     private final TripDao tripDao;
     private final TripLocationDao tripLocationDao;
-    private final JsonMapper jsonMapper;
+    private final JsonConverter jsonConverter;
 
     @KafkaListener(
             topics = "trip_car_location",
@@ -36,7 +36,7 @@ public class TripLocationListener {
 
         TripLocationDto locationPoint;
         try {
-            locationPoint = jsonMapper.getTripLocationDto(data);
+            locationPoint = jsonConverter.getTripLocationDto(data);
         } catch (Exception e) {
             throw new RuntimeException("Exception when trying to parse JSON message from Kafka.", e);
         }

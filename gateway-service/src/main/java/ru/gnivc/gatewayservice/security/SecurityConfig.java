@@ -91,6 +91,13 @@ public class SecurityConfig {
                     requests.pathMatchers(HttpMethod.POST, "driver/v1/trip").hasRole(Role.DRIVER.name());
                     requests.pathMatchers(HttpMethod.POST, "driver/v1/location").hasRole(Role.DRIVER.name());
                     requests.pathMatchers(HttpMethod.POST, "driver/v1/event").hasRole(Role.DRIVER.name());
+
+                    //dwh
+                    requests.pathMatchers(HttpMethod.GET, "dwh/v1/statistics").hasRole(Role.ADMIN.name());
+
+
+
+                    requests.anyExchange().denyAll();
                 })
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt

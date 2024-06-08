@@ -1,4 +1,4 @@
-package ru.gnivc.logistservice.kafka.listener;
+package ru.gnivc.logistservice.kafka.consumer.listener;
 
 import com.sun.jdi.request.DuplicateRequestException;
 import jakarta.ws.rs.NotFoundException;
@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.gnivc.logistservice.dao.TripDao;
 import ru.gnivc.logistservice.dao.TripEventDao;
 import ru.gnivc.logistservice.dto.input.TripEventDto;
-import ru.gnivc.logistservice.mapper.JsonMapper;
+import ru.gnivc.logistservice.mapper.JsonConverter;
 import ru.gnivc.logistservice.model.TripEntity;
 import ru.gnivc.logistservice.model.TripEventEntity;
 import ru.gnivc.logistservice.util.TripEventEnum;
@@ -27,7 +27,7 @@ import java.util.Optional;
 public class TripEventListener {
     private final TripDao tripDao;
     private final TripEventDao tripEventDao;
-    private final JsonMapper jsonMapper;
+    private final JsonConverter jsonConverter;
 
     @KafkaListener(
             topics = "trip_event",
@@ -40,7 +40,7 @@ public class TripEventListener {
 
         TripEventDto event;
         try {
-            event = jsonMapper.getTripEventDto(data);
+            event = jsonConverter.getTripEventDto(data);
         } catch (Exception e){
             throw new RuntimeException("Exception when trying to parse JSON message from Kafka.", e);
         }

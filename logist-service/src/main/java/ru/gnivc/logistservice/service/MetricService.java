@@ -29,8 +29,6 @@ public class MetricService {
 
     @Scheduled(fixedDelay = SCHEDULING_DELAY, timeUnit = TimeUnit.HOURS)
     private void sendMetricsToDwh(){
-        //todo СТАТИСТИКУ НА ТЕКУЩИЙ ДЕНЬ, А НЕ ВСЮ!!!
-
         Map<String, StatisticByCompanyDto> companiesStatistics = getCompaniesStatistics();
         ResponseEntity<Void> response = kafkaProducer.sendCompanyStatistics(companiesStatistics);
         if (response.getStatusCode() == HttpStatus.CREATED){

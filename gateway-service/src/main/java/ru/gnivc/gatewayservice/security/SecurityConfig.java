@@ -91,6 +91,9 @@ public class SecurityConfig {
                     requests.pathMatchers(HttpMethod.POST, "driver/v1/trip").hasRole(Role.DRIVER.name());
                     requests.pathMatchers(HttpMethod.POST, "driver/v1/location").hasRole(Role.DRIVER.name());
                     requests.pathMatchers(HttpMethod.POST, "driver/v1/event").hasRole(Role.DRIVER.name());
+                    //images
+                    requests.pathMatchers(HttpMethod.POST, "driver/v1/image").hasRole(Role.DRIVER.name());
+                    requests.pathMatchers(HttpMethod.GET, "driver/v1/image").hasRole(Role.LOGIST.name());
 
                     //dwh
                     requests.pathMatchers(HttpMethod.GET, "dwh/v1/statistics").hasRole(Role.ADMIN.name());

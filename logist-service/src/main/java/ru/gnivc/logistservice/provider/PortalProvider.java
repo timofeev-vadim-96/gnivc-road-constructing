@@ -27,7 +27,7 @@ public class PortalProvider {
     }
 
     public VehicleDto getVehicleById(long vehicleId, String companyName) {
-        String url = String.format(getPortalServiceIp() + "portal/v1/company/vehicle/%s?companyName=%s", vehicleId, companyName);
+        String url = String.format(getPortalServiceIp() + "portal/v1/company/vehicle/%d?companyName=%s", vehicleId, companyName);
 
         ResponseEntity<VehicleDto> responseEntity = restTemplate.getForEntity(url, VehicleDto.class);
 
@@ -40,7 +40,7 @@ public class PortalProvider {
     }
 
     public DriverDto getDriverById(long driverId, String companyName) {
-        String url = String.format(getPortalServiceIp() + "portal/v1/user/%s?companyName=%s", driverId, companyName);
+        String url = String.format(getPortalServiceIp() + "portal/v1/user/%d?companyName=%s", driverId, companyName);
 
         ResponseEntity<DriverDto> responseEntity = restTemplate.getForEntity(url, DriverDto.class);
 

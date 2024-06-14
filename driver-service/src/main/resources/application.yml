@@ -16,3 +16,9 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
     healthcheck:
       enabled: true
+minio:
+  address: localhost
+  port: 9000
+  tsl: false
+  login: admin
+  password: password

@@ -27,6 +27,23 @@ public class LogistProvider {
         this.eurekaClient = eurekaClient;
     }
 
+    public TripDto getTripById(long tripId, String companyName) {
+        String url = String.format(getPortalServiceIp() + "/logist/v1/trip/%d?companyName=%s", tripId, companyName);
+
+        ResponseEntity<TripDto> responseEntity = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                TripDto.class);
+
+        if (responseEntity.getStatusCode() == HttpStatus.OK) {
+            return responseEntity.getBody();
+        } else {
+            log.error("Response status from logist-ms while trying to get trip by id: {}", responseEntity.getStatusCode());
+            return null;
+        }
+    }
+
     public List<TaskDto> getTasksByDriverId(long driverId, String companyName) {
         String url = String.format(getPortalServiceIp() + "/logist/v1/task/byDriver/%d?companyName=%s", driverId, companyName);
 
@@ -35,7 +52,7 @@ public class LogistProvider {
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
-        });
+                });
 
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             return responseEntity.getBody();
@@ -58,7 +75,7 @@ public class LogistProvider {
         }
     }
 
-    private String getPortalServiceIp(){
+    private String getPortalServiceIp() {
         Application application = eurekaClient.getApplication("LOGIST-MS");
         List<InstanceInfo> instanceInfos = application.getInstances();
 

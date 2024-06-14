@@ -11,7 +11,11 @@ target/
 *.iws
 *.iml
 *.ipr
-technical-tasks/**
+technical-tasks
+.idea
+**/mvnw
+**/mvnw.cmd
+**/.mvn
 
 ### Eclipse ###
 .apt_generated

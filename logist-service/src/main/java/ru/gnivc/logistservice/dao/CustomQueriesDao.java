@@ -77,10 +77,12 @@ public class CustomQueriesDao {
 
     public Map<String, Integer> getCompaniesTaskQuantity() {
         Map<String, Integer> tasksByCompanies = new HashMap<>();
-        jdbcTemplate.query("select companies.company_name, count(*) as task_quantity from tasks\n" +
-                "                left join companies\n" +
-                "                on tasks.company = companies.id\n" +
-                "                group by companies.company_name", (rs, rowNum) -> {
+        jdbcTemplate.query("select companies.company_name, res.task_quantity from (\n" +
+                "select companies.company_name, count(*) as task_quantity from tasks\n" +
+                "                                inner join companies\n" +
+                "                                on tasks.company = companies.id\n" +
+                "                                group by companies.company_name) as res\n" +
+                "right join companies on companies.company_name = res.company_name", (rs, rowNum) -> {
             String companyName = rs.getString("company_name");
             int taskQuantity = rs.getInt("task_quantity");
 

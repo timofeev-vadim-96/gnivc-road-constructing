@@ -42,7 +42,7 @@ public class MetricService {
 
         Map<String, Integer> tasksQuantityByCompany = customDao.getCompaniesTaskQuantity();
         for (String key: companiesStatistics.keySet()){
-            Integer tasksQuantity = tasksQuantityByCompany.get(key);
+            int tasksQuantity = tasksQuantityByCompany.get(key);
             companiesStatistics.get(key).setTasks(tasksQuantity);
         }
         return companiesStatistics;

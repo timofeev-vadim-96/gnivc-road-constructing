@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import ru.gnivc.driverservice.dto.input.TaskDto;
 import ru.gnivc.driverservice.dto.input.TripDto;
 import ru.gnivc.driverservice.provider.LogistProvider;
 
@@ -24,27 +23,42 @@ public class MinioService {
     private final LogistProvider logistProvider;
     private static final String BUCKET_NAME = "gnivc-bucket";
 
-
     public ResponseEntity<String> uploadImage(String resultFileName, MultipartFile file, String companyName, long tripId) {
-        TripDto tripById = logistProvider.getTripById(tripId, companyName);
-        log.info("trip received from logist-ms: " + tripById);
+        TripDto trip = logistProvider.getTripById(tripId, companyName);
+        log.info("trip received from logist-ms: " + trip);
         String answer = "There is not trip with id = " + tripId + " and companyName = " + companyName;
-        if (tripById == null) {
+        if (trip == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, answer);
         }
         return putObjectToBucket(file, resultFileName);
     }
 
     public ResponseEntity<byte[]> downloadImage(String resultFileName, String companyName, long tripId) {
-        TripDto tripById = logistProvider.getTripById(tripId, companyName);
+        TripDto trip = logistProvider.getTripById(tripId, companyName);
+        log.info("trip received from logist-ms: " + trip);
         String answer = "There is not trip with id = " + tripId + " and companyName = " + companyName;
-        if (tripById == null) {
+        if (trip == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, answer);
         }
         return getObjectFromBucket(resultFileName);
     }
 
-    public ResponseEntity<byte[]> getObjectFromBucket(String objectName) {
+    public ResponseEntity<Void> removeImage(String objectName) {
+        String answer;
+        try {
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(BUCKET_NAME)
+                            .object(objectName)
+                            .build());
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            answer = "image with name : " + objectName + " not found.";
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, answer);
+        }
+    }
+
+    private ResponseEntity<byte[]> getObjectFromBucket(String objectName) {
         log.info("image to search: " + objectName);
         try (InputStream stream =
                      minioClient.getObject(GetObjectArgs
@@ -55,7 +69,6 @@ public class MinioService {
             byte[] image = IOUtils.toByteArray(stream);
             return new ResponseEntity<>(image, HttpStatus.OK);
         } catch (Exception e) {
-            log.info("словили исключение");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
@@ -88,7 +101,6 @@ public class MinioService {
         createBucketIfNotExists(BUCKET_NAME);
 
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(image.getBytes())) {
-            log.info("зашли в блок трай");
             minioClient.putObject(PutObjectArgs
                     .builder()
                     .bucket(BUCKET_NAME)
@@ -99,7 +111,6 @@ public class MinioService {
                     "The image has been uploaded successfully with name: " + resultFileName,
                     HttpStatus.CREATED);
         } catch (Exception e) {
-            log.error("словили исключение");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }

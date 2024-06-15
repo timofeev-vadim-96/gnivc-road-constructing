@@ -31,7 +31,7 @@ public class ImageController {
 
     @GetMapping(
             produces = MediaType.IMAGE_JPEG_VALUE)
-    public ResponseEntity<byte[]> getImageByLogist(
+    public ResponseEntity<byte[]> getImage(
             @RequestParam long taskId,
             @RequestParam long tripId,
             @RequestParam String fileName,
@@ -39,5 +39,14 @@ public class ImageController {
 
         String imageName = companyName + "/" + taskId + "/" + tripId + "/" + fileName;
         return minioService.downloadImage(imageName, companyName, tripId);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> removeImage(@RequestParam long taskId,
+                                            @RequestParam long tripId,
+                                            @RequestParam String fileName,
+                                            @RequestParam String companyName) {
+        String imageName = companyName + "/" + taskId + "/" + tripId + "/" + fileName;
+        return minioService.removeImage(imageName);
     }
 }

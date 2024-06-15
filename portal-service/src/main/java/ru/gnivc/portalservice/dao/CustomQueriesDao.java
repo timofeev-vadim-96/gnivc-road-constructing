@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 import ru.gnivc.portalservice.dto.output.CompanyUserDto;
 import ru.gnivc.portalservice.dto.output.SimpleCompanyDto;
 import ru.gnivc.portalservice.model.CompanyEntity;
-import ru.gnivc.portalservice.model.VehicleEntity;
 import ru.gnivc.portalservice.util.ClientRole;
 
 import java.sql.ResultSet;

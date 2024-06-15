@@ -7,12 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import ru.gnivc.logistservice.dao.TaskDao;
-import ru.gnivc.logistservice.dao.TripDao;
-import ru.gnivc.logistservice.dao.TripEventDao;
-import ru.gnivc.logistservice.dao.TripLocationDao;
+import ru.gnivc.logistservice.dao.*;
 import ru.gnivc.logistservice.dto.output.TripDto;
-import ru.gnivc.logistservice.mapper.TripMapper;
 import ru.gnivc.logistservice.model.TaskEntity;
 import ru.gnivc.logistservice.model.TripEntity;
 import ru.gnivc.logistservice.model.TripEventEntity;
@@ -31,6 +27,7 @@ public class TripService {
     private final TaskDao taskDao;
     private final TripEventDao tripEventDao;
     private final TripLocationDao tripLocationDao;
+    private final CustomQueriesDao customQueriesDao;
 
     @Transactional
     public ResponseEntity<TripEntity> create(long taskId, String companyName) {
@@ -60,7 +57,7 @@ public class TripService {
     }
 
     public ResponseEntity<TripDto> get(long tripId, String companyName) {
-        Optional<TripEntity> trip = tripDao.findById(tripId);
+        Optional<TripDto> trip = customQueriesDao.findTripByIdWithStatus(tripId);
         if (trip.isEmpty()) {
             String answer = String.format("Trip with id = %s not found", tripId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, answer);
@@ -68,10 +65,8 @@ public class TripService {
             String answer = String.format("The trip with id = %s was created by a logistics specialist from another company", trip);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, answer);
         } else {
-            TripEventEntity lastEvent = getLatestEvent(trip.get());
-            TripDto tripDto = TripMapper.convertTripToDto(trip.get(), lastEvent);
-            log.info("tripDto: " + tripDto);
-            return new ResponseEntity<>(tripDto, HttpStatus.OK);
+            log.info("tripDto: " + trip.get());
+            return new ResponseEntity<>(trip.get(), HttpStatus.OK);
         }
     }
 
@@ -101,20 +96,6 @@ public class TripService {
             tripDao.delete(trip.get());
             return new ResponseEntity<>(HttpStatus.OK);
         }
-    }
-
-    private TripEventEntity getLatestEvent(TripEntity trip) {
-        List<TripEventEntity> events = tripEventDao.findAllByTrip(trip);
-        return getLatestEvent(events);
-    }
-    private TripEventEntity getLatestEvent(List<TripEventEntity> events) {
-        TripEventEntity lastEvent = events.getFirst();
-        for (TripEventEntity event : events) {
-            if (lastEvent.getTime().isBefore(event.getTime())) {
-                lastEvent = event;
-            }
-        }
-        return lastEvent;
     }
 
     public ResponseEntity<List<TripEventEntity>> getTripWithEvents(long tripId, String companyName) {

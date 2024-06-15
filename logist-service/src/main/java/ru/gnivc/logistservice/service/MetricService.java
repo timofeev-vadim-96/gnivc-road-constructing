@@ -32,7 +32,7 @@ public class MetricService {
         Map<String, StatisticByCompanyDto> companiesStatistics = getCompaniesStatistics();
         ResponseEntity<Void> response = kafkaProducer.sendCompanyStatistics(companiesStatistics);
         if (response.getStatusCode() == HttpStatus.CREATED){
-            log.info("Statistics on companies sent to dwh-ms");
+            log.info("Statistics on companies sent to dwh-ms: " + companiesStatistics);
         }
     }
 

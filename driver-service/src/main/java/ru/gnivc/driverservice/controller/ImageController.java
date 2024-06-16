@@ -6,13 +6,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.gnivc.driverservice.service.MinioService;
+import ru.gnivc.driverservice.service.ImageService;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("driver/v1/image")
 public class ImageController {
-    private final MinioService minioService;
+    private final ImageService imageService;
 
     @PostMapping()
     public ResponseEntity<String> uploadImage(
@@ -25,7 +25,7 @@ public class ImageController {
             return new ResponseEntity<>("File is empty", HttpStatus.BAD_REQUEST);
         } else {
             String resultFileName = companyName + "/" + taskId + "/" + tripId + "/" + file.getOriginalFilename();
-            return minioService.uploadImage(resultFileName, file, companyName, tripId);
+            return imageService.uploadImage(resultFileName, file, companyName, tripId);
         }
     }
 
@@ -38,7 +38,7 @@ public class ImageController {
             @RequestParam String companyName) {
 
         String imageName = companyName + "/" + taskId + "/" + tripId + "/" + fileName;
-        return minioService.downloadImage(imageName, companyName, tripId);
+        return imageService.downloadImage(imageName, companyName, tripId);
     }
 
     @DeleteMapping
@@ -47,6 +47,6 @@ public class ImageController {
                                             @RequestParam String fileName,
                                             @RequestParam String companyName) {
         String imageName = companyName + "/" + taskId + "/" + tripId + "/" + fileName;
-        return minioService.removeImage(imageName);
+        return imageService.removeImage(imageName);
     }
 }

@@ -76,6 +76,12 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <dependency>
+                <groupId>xxx.yyy</groupId>
+                <artifactId>after-returning-logger-spring-boot-starter</artifactId>
+                <version>0.0.10-SNAPSHOT</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

@@ -38,20 +38,6 @@ public class KeycloakService {
         this.companyDao = companyDao;
     }
 
-    private record RegistrationResult(UserRepresentation newUser, Response response, String userId) {
-    }
-
-    private RegistrationResult registerUser(UserDto userDto) {
-        UserRepresentation newUser = convertToUserRepresentation(userDto);
-        Response response = usersManager.create(newUser);
-        log.info(String.format("Response: %s %s%n", response.getStatus(), response.getStatusInfo()));
-        log.info(response.getLocation().toString());
-
-        String userId = CreatedResponseUtil.getCreatedId(response);
-        log.info(String.format("User created with userId: %s%n", userId));
-        return new RegistrationResult(newUser, response, userId);
-    }
-
     public void updateUser(UserDto userDto, String email) {
         UserRepresentation user = usersManager.searchByEmail(email, true).getFirst();
         user.setEmail(userDto.getEmail());
@@ -196,5 +182,19 @@ public class KeycloakService {
     public void removeClient(String companyName) {
         ClientRepresentation client = findClientByName(companyName);
         clientsManager.get(client.getId()).remove();
+    }
+
+    private record RegistrationResult(UserRepresentation newUser, Response response, String userId) {
+    }
+
+    private RegistrationResult registerUser(UserDto userDto) {
+        UserRepresentation newUser = convertToUserRepresentation(userDto);
+        Response response = usersManager.create(newUser);
+        log.info(String.format("Response: %s %s%n", response.getStatus(), response.getStatusInfo()));
+        log.info(response.getLocation().toString());
+
+        String userId = CreatedResponseUtil.getCreatedId(response);
+        log.info(String.format("User created with userId: %s%n", userId));
+        return new RegistrationResult(newUser, response, userId);
     }
 }

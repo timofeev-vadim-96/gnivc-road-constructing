@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.gnivc.logistservice.dto.input.TaskDto;
 import ru.gnivc.logistservice.model.TaskEntity;
 import ru.gnivc.logistservice.service.TaskService;
+import ru.gnivc.logistservice.service.TaskServiceImpl;
 
 import java.util.List;
 

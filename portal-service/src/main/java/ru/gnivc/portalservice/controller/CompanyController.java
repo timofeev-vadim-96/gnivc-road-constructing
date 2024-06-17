@@ -12,7 +12,7 @@ import ru.gnivc.portalservice.dto.output.CompanyUserDto;
 import ru.gnivc.portalservice.dto.output.SimpleCompanyDto;
 import ru.gnivc.portalservice.model.CompanyEntity;
 import ru.gnivc.portalservice.service.CompanyService;
-import ru.gnivc.portalservice.service.UserService;
+import ru.gnivc.portalservice.service.CompanyUserService;
 import ru.gnivc.portalservice.util.ClientRole;
 
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.List;
 @RequestMapping("/portal/v1/company")
 public class CompanyController {
     private final CompanyService companyService;
-    private final UserService userService;
+    private final CompanyUserService userService;
 
     /**
      * Creating a company

@@ -11,7 +11,7 @@ public class MinioConfig {
     private final MinioProperties properties;
 
     @Bean
-    public MinioClient minioClient(){
+    public MinioClient minioClient() {
         return MinioClient.builder()
                 .endpoint(properties.getAddress(), properties.getPort(), properties.isTsl())
                 .credentials(properties.getLogin(), properties.getPassword())

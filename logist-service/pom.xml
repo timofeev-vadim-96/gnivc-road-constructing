@@ -68,6 +68,11 @@
             <artifactId>spring-kafka-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>xxx.yyy</groupId>
+            <artifactId>after-returning-logger-spring-boot-starter</artifactId>
+            <version>0.0.10-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
 

@@ -10,14 +10,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.server.ResponseStatusException;
 import ru.gnivc.driverservice.dto.input.TaskDto;
 import ru.gnivc.driverservice.dto.input.TripDto;
+import xxx.yyy.annotation.AfterReturningLogger;
 
-import java.util.*;
+import java.util.List;
+import java.util.Random;
 
 @Service
 @Slf4j
+@AfterReturningLogger
 public class LogistProvider {
     private final RestTemplate restTemplate;
     private final EurekaClient eurekaClient;

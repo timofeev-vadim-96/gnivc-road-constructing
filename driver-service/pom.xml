@@ -38,6 +38,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+        <dependency>
+            <groupId>xxx.yyy</groupId>
+            <artifactId>after-returning-logger-spring-boot-starter</artifactId>
+            <version>0.0.10-SNAPSHOT</version>
+        </dependency>
 
         <!--Kafka-->
         <dependency>

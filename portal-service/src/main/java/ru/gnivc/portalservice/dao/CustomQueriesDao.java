@@ -8,6 +8,7 @@ import ru.gnivc.portalservice.dto.output.CompanyUserDto;
 import ru.gnivc.portalservice.dto.output.SimpleCompanyDto;
 import ru.gnivc.portalservice.model.CompanyEntity;
 import ru.gnivc.portalservice.util.ClientRole;
+import xxx.yyy.annotation.AfterReturningLogger;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,6 +17,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
+@AfterReturningLogger
 public class CustomQueriesDao {
     private final CompanyDao companyDao;
     private final JdbcTemplate jdbcTemplate;

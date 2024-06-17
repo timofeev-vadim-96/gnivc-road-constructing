@@ -11,12 +11,14 @@ import org.springframework.web.client.RestTemplate;
 import ru.gnivc.logistservice.dto.input.CompanyDto;
 import ru.gnivc.logistservice.dto.input.DriverDto;
 import ru.gnivc.logistservice.dto.input.VehicleDto;
+import xxx.yyy.annotation.AfterReturningLogger;
 
 import java.util.List;
 import java.util.Random;
 
 @Service
 @Slf4j
+@AfterReturningLogger
 public class PortalProvider {
     private final RestTemplate restTemplate;
     private final EurekaClient eurekaClient;

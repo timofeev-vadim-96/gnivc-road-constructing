@@ -18,13 +18,13 @@ import java.io.InputStream;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MinioService {
+public class ImageServiceImpl implements ImageService {
     private final MinioClient minioClient;
-    private final LogistProvider logistProvider;
+    private final LogistProvider provider;
     private static final String BUCKET_NAME = "gnivc-bucket";
 
     public ResponseEntity<String> uploadImage(String resultFileName, MultipartFile file, String companyName, long tripId) {
-        TripDto trip = logistProvider.getTripById(tripId, companyName);
+        TripDto trip = provider.getTripById(tripId, companyName);
         log.info("trip received from logist-ms: " + trip);
         String answer = "There is not trip with id = " + tripId + " and companyName = " + companyName;
         if (trip == null) {
@@ -34,7 +34,7 @@ public class MinioService {
     }
 
     public ResponseEntity<byte[]> downloadImage(String resultFileName, String companyName, long tripId) {
-        TripDto trip = logistProvider.getTripById(tripId, companyName);
+        TripDto trip = provider.getTripById(tripId, companyName);
         log.info("trip received from logist-ms: " + trip);
         String answer = "There is not trip with id = " + tripId + " and companyName = " + companyName;
         if (trip == null) {

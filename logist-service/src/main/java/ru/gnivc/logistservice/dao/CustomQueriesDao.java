@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import ru.gnivc.logistservice.dto.output.StatisticByCompanyDto;
 import ru.gnivc.logistservice.dto.output.TripDto;
 import ru.gnivc.logistservice.model.TaskEntity;
+import xxx.yyy.annotation.AfterReturningLogger;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
+@AfterReturningLogger
 public class CustomQueriesDao {
     private final JdbcTemplate jdbcTemplate;
     private final TaskDao taskDao;

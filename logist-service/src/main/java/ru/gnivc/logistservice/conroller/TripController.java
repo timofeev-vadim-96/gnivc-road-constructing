@@ -8,6 +8,7 @@ import ru.gnivc.logistservice.model.TripEntity;
 import ru.gnivc.logistservice.model.TripEventEntity;
 import ru.gnivc.logistservice.model.TripLocationEntity;
 import ru.gnivc.logistservice.service.TripService;
+import ru.gnivc.logistservice.service.TripServiceImpl;
 
 import java.util.List;
 

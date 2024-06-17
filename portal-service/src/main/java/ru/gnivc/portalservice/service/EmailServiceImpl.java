@@ -17,7 +17,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-public class CustomMailService {
+public class EmailServiceImpl implements EmailService {
     private final JavaMailSender emailSender;
 
     @Value("${spring.mail.username}")

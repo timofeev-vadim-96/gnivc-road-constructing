@@ -16,6 +16,7 @@ technical-tasks
 **/mvnw
 **/mvnw.cmd
 **/.mvn
+docker-compose/config/**
 
 ### Eclipse ###
 .apt_generated

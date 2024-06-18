@@ -37,7 +37,7 @@ the gateway-ms side.
 
 > The project code is adapted to the requirements of the `maven-checkstyle-plugin` 
 
-Используемые технологии на проекте:  
+`Technologies used in the project`:  
 1. Keycloak
 2. Spring-cloud (Netflix Eureka + Gateway)
 3. PostgreSQL

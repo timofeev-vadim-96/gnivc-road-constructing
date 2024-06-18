@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface CompanyUserService {
     ResponseEntity<String> createClientUser(String companyName, UserDto userDto);
+
     List<CompanyUserDto> getCompanyUsers(String companyName);
 }

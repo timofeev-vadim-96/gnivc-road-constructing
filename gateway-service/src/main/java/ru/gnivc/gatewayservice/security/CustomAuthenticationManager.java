@@ -14,8 +14,10 @@ public class CustomAuthenticationManager implements ReactiveAuthenticationManage
 
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
-        if (authentication.isAuthenticated()){
+        if (authentication.isAuthenticated()) {
             return Mono.just(authentication);
-        } else return null;
+        } else {
+            return null;
+        }
     }
 }

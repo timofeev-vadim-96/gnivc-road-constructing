@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SimpleCompanyDto {
     private Long id;
+
     private String name;
+
     private String inn;
 }

@@ -8,7 +8,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import ru.gnivc.gatewayservice.filter.RequestFilter;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.Map;
+import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,9 +23,6 @@ public class CustomGrantedAuthoritiesExtractor implements Converter<Jwt, Collect
 
     @Override
     public Collection<GrantedAuthority> convert(Jwt jwt) {
-        String email = jwt.getClaimAsString("email");
-//        requestFilter.overrideUsersEmail(email);
-
         List<String> realmRoles = getRealmRoles(jwt);
         Set<GrantedAuthority> realmAuthorities = realmRoles.stream()
                 .filter(role -> role.startsWith("ROLE_"))
@@ -39,7 +40,8 @@ public class CustomGrantedAuthoritiesExtractor implements Converter<Jwt, Collect
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toSet());
 
-            Set<GrantedAuthority> combinedAuthorities = Stream.concat(realmAuthorities.stream(), clientAuthorities.stream())
+            Set<GrantedAuthority> combinedAuthorities = Stream
+                    .concat(realmAuthorities.stream(), clientAuthorities.stream())
                     .collect(Collectors.toSet());
             log.info("Current user's roles (client branch): {}", combinedAuthorities);
             return combinedAuthorities;
@@ -55,8 +57,9 @@ public class CustomGrantedAuthoritiesExtractor implements Converter<Jwt, Collect
     private static List<String> getClientRoles(Jwt jwt, String name) {
         Map<String, Object> resourceAccessClaims = jwt.getClaimAsMap("resource_access");
         Map<String, Object> clientClaims = (Map<String, Object>) resourceAccessClaims.get(name);
-        if (clientClaims == null) return Collections.emptyList();
-        else {
+        if (clientClaims == null) {
+            return Collections.emptyList();
+        } else {
             List<String> clientRoles = (List<String>) clientClaims.get("roles");
             return clientRoles;
         }

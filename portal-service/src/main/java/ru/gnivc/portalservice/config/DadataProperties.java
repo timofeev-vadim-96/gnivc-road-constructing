@@ -1,5 +1,6 @@
 package ru.gnivc.portalservice.config;
 
+import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -7,8 +8,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "dadata")
 @Setter
+@Getter
 public class DadataProperties {
-    public String apiKey;
-    public String secret;
-    public String apiEndpoint;
+    private String apiKey;
+
+    private String secret;
+
+    private String apiEndpoint;
 }

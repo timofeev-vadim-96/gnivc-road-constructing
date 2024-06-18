@@ -22,6 +22,7 @@ import java.util.Random;
 @AfterReturningLogger
 public class LogistProvider {
     private final RestTemplate restTemplate;
+
     private final EurekaClient eurekaClient;
 
     public LogistProvider(EurekaClient eurekaClient) {
@@ -30,7 +31,10 @@ public class LogistProvider {
     }
 
     public TripDto getTripById(long tripId, String companyName) {
-        String url = String.format(getPortalServiceIp() + "/logist/v1/trip/%d?companyName=%s", tripId, companyName);
+        String url =
+                String.format(getPortalServiceIp() + "/logist/v1/trip/%d?companyName=%s",
+                        tripId,
+                        companyName);
 
         ResponseEntity<TripDto> responseEntity = restTemplate.exchange(
                 url,
@@ -41,13 +45,17 @@ public class LogistProvider {
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             return responseEntity.getBody();
         } else {
-            log.error("Response status from logist-ms while trying to get trip by id: {}", responseEntity.getStatusCode());
+            log.error(
+                    "Response status from logist-ms while trying to get trip by id: {}",
+                    responseEntity.getStatusCode());
             return null;
         }
     }
 
     public List<TaskDto> getTasksByDriverId(long driverId, String companyName) {
-        String url = String.format(getPortalServiceIp() + "/logist/v1/task/byDriver/%d?companyName=%s", driverId, companyName);
+        String url = String.format(getPortalServiceIp() + "/logist/v1/task/byDriver/%d?companyName=%s",
+                driverId,
+                companyName);
 
         ResponseEntity<List<TaskDto>> responseEntity = restTemplate.exchange(
                 url,
@@ -59,20 +67,25 @@ public class LogistProvider {
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             return responseEntity.getBody();
         } else {
-            log.error("Response status from logist-ms while trying to get driver's tasks is: {}", responseEntity.getStatusCode());
+            log.error("Response status from logist-ms while trying to get driver's tasks is: {}",
+                    responseEntity.getStatusCode());
             return null;
         }
     }
 
     public TripDto createTrip(long taskId, String companyName) {
-        String url = String.format(getPortalServiceIp() + "/logist/v1/trip?taskId=%d&companyName=%s", taskId, companyName);
+        String url = String.format(getPortalServiceIp() + "/logist/v1/trip?taskId=%d&companyName=%s",
+                taskId,
+                companyName);
 
-        ResponseEntity<TripDto> responseEntity = restTemplate.exchange(url, HttpMethod.POST, null, TripDto.class);
+        ResponseEntity<TripDto> responseEntity = restTemplate
+                .exchange(url, HttpMethod.POST, null, TripDto.class);
 
         if (responseEntity.getStatusCode() == HttpStatus.CREATED) {
             return responseEntity.getBody();
         } else {
-            log.error("Response status from logist-ms while trying to get driver's tasks is: {}", responseEntity.getStatusCode());
+            log.error("Response status from logist-ms while trying to get driver's tasks is: {}",
+                    responseEntity.getStatusCode());
             return null;
         }
     }

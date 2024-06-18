@@ -30,20 +30,27 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 @Slf4j
 @EnableScheduling
-public class UserServiceImpl implements UserService, CompanyUserService{
+public class UserServiceImpl implements UserService, CompanyUserService {
     private final KeycloakService keycloakService;
+
     private final CustomPasswordGenerator passwordGenerator;
+
     private final EmailService mailService;
 
     private final UserDao userDao;
+
     private final CustomQueriesDao customQueriesDao;
+
     private final CompanyUserBinder companyUserService;
+
     private final Map<String, PasswordResetBox> resetCodesByEmailMap = new ConcurrentHashMap<>();
 
     public ResponseEntity<UserEntity> getUserById(long id) {
         Optional<UserEntity> user = userDao.findById(id);
         if (user.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("User with id = %s not found", id));
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    String.format("User with id = %s not found", id));
         } else {
             return new ResponseEntity<>(user.get(), HttpStatus.OK);
         }
@@ -57,7 +64,8 @@ public class UserServiceImpl implements UserService, CompanyUserService{
         Optional<UserEntity> userEntityWithOldEmail = userDao.findByEmail(email);
         Optional<UserRepresentation> userInKeycloakWithOldEmail = keycloakService.findUserByMail(email);
         String answer;
-        if ((userEntityWithNewEmail.isPresent() || userInKeycloakWithNewEmail.isPresent()) && !email.equals(userDto.getEmail())) {
+        if ((userEntityWithNewEmail.isPresent() || userInKeycloakWithNewEmail.isPresent()) &&
+                !email.equals(userDto.getEmail())) {
             answer = String.format("The user with an email: %s is already exists. You can't change your" +
                     "email to someone else's", userDto.getEmail());
             return new ResponseEntity<>(answer, HttpStatus.BAD_REQUEST);
@@ -65,19 +73,7 @@ public class UserServiceImpl implements UserService, CompanyUserService{
             answer = String.format("The user with an email: %s was not found.", email);
             return new ResponseEntity<>(answer, HttpStatus.NOT_FOUND);
         } else {
-            UserEntity user = updateUserEntity(userDto, userEntityWithOldEmail.get());
-
-            keycloakService.updateUser(userDto, email);
-            userInKeycloakWithNewEmail = keycloakService.findUserByMail(userDto.getEmail());
-            boolean isUpdated = compareUsersAfterUpdate(user, userInKeycloakWithNewEmail);
-            if (!isUpdated) {
-                answer = "There was a problem when trying to update user data";
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, answer);
-            } else {
-                userDao.save(user);
-                answer = "The user's data has been updated";
-                return new ResponseEntity<>(answer, HttpStatus.ACCEPTED);
-            }
+            return updateUser(email, userDto, userEntityWithOldEmail.get());
         }
     }
 
@@ -85,7 +81,9 @@ public class UserServiceImpl implements UserService, CompanyUserService{
     public ResponseEntity<Void> removeUserById(long userId) {
         Optional<UserEntity> user = userDao.findById(userId);
         if (user.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("User with id = %s not found", userId));
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    String.format("User with id = %s not found", userId));
         } else {
             userDao.delete(user.get());
             keycloakService.removeUser(user.get().getEmail());
@@ -115,9 +113,7 @@ public class UserServiceImpl implements UserService, CompanyUserService{
         Optional<UserEntity> user = userDao.findByEmail(userDto.getEmail());
         Optional<UserRepresentation> userInKeycloak = keycloakService.findUserByMail(userDto.getEmail());
 
-        //if the user exists in the realm
         if (user.isPresent() && userInKeycloak.isPresent()) {
-            //checking whether he is registered with this company
             Optional<List<CompanyUserDto>> users = customQueriesDao.getCompanyUsers(companyName);
             if (users.isEmpty()) {
                 throw new ResponseStatusException(
@@ -128,28 +124,14 @@ public class UserServiceImpl implements UserService, CompanyUserService{
                     .findFirst();
             String answer;
             if (companyUser.isPresent()) {
-                answer = "The user with mail " + userDto.getEmail() + " already exists and registered with this company";
+                answer = "The user with mail " + userDto.getEmail() +
+                        " already exists and registered with this company";
                 return new ResponseEntity<>(answer, HttpStatus.BAD_REQUEST);
             } else {
-                companyUserService.bindUserWithCompany(userDto.getEmail(), companyName, userDto.getClientRole());
-                String userId = userInKeycloak.get().getId();
-                keycloakService.assignClientLevelRoleToUser(userId, companyName, userDto.getClientRole());
-                answer = "The user has been added to the company with the role: " + userDto.getClientRole().name();
-                return new ResponseEntity<>(answer, HttpStatus.ACCEPTED);
+                return bindUserWithCompany(companyName, userDto, userInKeycloak.get());
             }
         } else {
-            save(userDto, false);
-
-            companyUserService.bindUserWithCompany(userDto.getEmail(), companyName, userDto.getClientRole());
-
-            String password = passwordGenerator.generatePassword();
-            Optional<String> username = keycloakService.registerClientUser(userDto, password, companyName);
-            if (username.isEmpty()) {
-                String answer = "Error when trying to register a user";
-                return new ResponseEntity<>(answer, HttpStatus.BAD_REQUEST);
-            } else {
-                return getRegistryResultAnswer(userDto, username.get(), password);
-            }
+            return saveClientUser(companyName, userDto);
         }
     }
 
@@ -197,7 +179,8 @@ public class UserServiceImpl implements UserService, CompanyUserService{
             mailService.sendSimpleEmail(
                     email,
                     "Request to change the password in GNIVC",
-                    "We have received a request to change the password. If it wasn't you, then just ignore this email. \n" +
+                    "We have received a request to change the password. If it wasn't you, " +
+                            "then just ignore this email. \n" +
                             "To regenerate the password, use the code: " + resetCode);
             answer = "The password recovery code has been sent to your email: " + email;
             return new ResponseEntity<>(answer, HttpStatus.OK);
@@ -221,9 +204,13 @@ public class UserServiceImpl implements UserService, CompanyUserService{
         return user;
     }
 
-    private boolean compareUsersAfterUpdate(UserEntity user, Optional<UserRepresentation> userRepresentation) {
-        if (userRepresentation.isEmpty()) return false;
-        else {
+    private boolean compareUsersAfterUpdate(
+            UserEntity user,
+            Optional<UserRepresentation> userRepresentation) {
+
+        if (userRepresentation.isEmpty()) {
+            return false;
+        } else {
             UserRepresentation updatedUser = userRepresentation.get();
             return user.getEmail().equals(updatedUser.getEmail()) &&
                     user.getFirstName().equals(updatedUser.getFirstName()) &&
@@ -234,7 +221,11 @@ public class UserServiceImpl implements UserService, CompanyUserService{
     private record PasswordResetBox(String resetCode, LocalDateTime issueTime) {
     }
 
-    private ResponseEntity<String> getRegistryResultAnswer(UserDto userDto, String username, String password) {
+    private ResponseEntity<String> getRegistryResultAnswer(
+            UserDto userDto,
+            String username,
+            String password) {
+
         boolean isSuccessful = mailService.sendSimpleEmail(
                 userDto.getEmail(),
                 "Your GNIVC credentials",
@@ -247,9 +238,11 @@ public class UserServiceImpl implements UserService, CompanyUserService{
         if (isSuccessful) {
             answer = "The user is registered. Login and password has been sent to your mail: " + userDto.getEmail();
             return new ResponseEntity<>(answer, HttpStatus.CREATED);
-        } else
-            answer = "Exception while trying to send a message to the mail: " + userDto.getEmail() + ". Perhaps, it's doesn't exist";
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, answer);
+        } else {
+            answer = "Exception while trying to send a message to the mail: " + userDto.getEmail() +
+                    ". Perhaps, it's doesn't exist";
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, answer);
+        }
     }
 
     private void save(UserDto userDto, boolean isRegistrator) {
@@ -260,5 +253,55 @@ public class UserServiceImpl implements UserService, CompanyUserService{
                 .isRegistrator(isRegistrator)
                 .build();
         userDao.save(userEntity);
+    }
+
+    private ResponseEntity<String> updateUser(
+            String email,
+            UserDto userDto,
+            UserEntity userEntityWithOldEmail) {
+
+        Optional<UserRepresentation> userInKeycloakWithNewEmail;
+        String answer;
+        UserEntity user = updateUserEntity(userDto, userEntityWithOldEmail);
+
+        keycloakService.updateUser(userDto, email);
+        userInKeycloakWithNewEmail = keycloakService.findUserByMail(userDto.getEmail());
+        boolean isUpdated = compareUsersAfterUpdate(user, userInKeycloakWithNewEmail);
+        if (!isUpdated) {
+            answer = "There was a problem when trying to update user data";
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, answer);
+        } else {
+            userDao.save(user);
+            answer = "The user's data has been updated";
+            return new ResponseEntity<>(answer, HttpStatus.ACCEPTED);
+        }
+    }
+
+    private ResponseEntity<String> saveClientUser(String companyName, UserDto userDto) {
+        save(userDto, false);
+
+        companyUserService.bindUserWithCompany(userDto.getEmail(), companyName, userDto.getClientRole());
+
+        String password = passwordGenerator.generatePassword();
+        Optional<String> username = keycloakService.registerClientUser(userDto, password, companyName);
+        if (username.isEmpty()) {
+            String answer = "Error when trying to register a user";
+            return new ResponseEntity<>(answer, HttpStatus.BAD_REQUEST);
+        } else {
+            return getRegistryResultAnswer(userDto, username.get(), password);
+        }
+    }
+
+    private ResponseEntity<String> bindUserWithCompany(
+            String companyName,
+            UserDto userDto,
+            UserRepresentation userInKeycloak) {
+
+        String answer;
+        companyUserService.bindUserWithCompany(userDto.getEmail(), companyName, userDto.getClientRole());
+        String userId = userInKeycloak.getId();
+        keycloakService.assignClientLevelRoleToUser(userId, companyName, userDto.getClientRole());
+        answer = "The user has been added to the company with the role: " + userDto.getClientRole().name();
+        return new ResponseEntity<>(answer, HttpStatus.ACCEPTED);
     }
 }

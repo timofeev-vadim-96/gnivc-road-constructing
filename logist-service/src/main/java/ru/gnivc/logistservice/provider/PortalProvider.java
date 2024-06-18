@@ -21,6 +21,7 @@ import java.util.Random;
 @AfterReturningLogger
 public class PortalProvider {
     private final RestTemplate restTemplate;
+
     private final EurekaClient eurekaClient;
 
     public PortalProvider(EurekaClient eurekaClient) {
@@ -29,27 +30,34 @@ public class PortalProvider {
     }
 
     public VehicleDto getVehicleById(long vehicleId, String companyName) {
-        String url = String.format(getPortalServiceIp() + "portal/v1/company/vehicle/%d?companyName=%s", vehicleId, companyName);
+        String url = String.format(
+                getPortalServiceIp() + "portal/v1/company/vehicle/%d?companyName=%s",
+                vehicleId,
+                companyName);
 
         ResponseEntity<VehicleDto> responseEntity = restTemplate.getForEntity(url, VehicleDto.class);
 
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             return responseEntity.getBody();
         } else {
-            log.error("Response status from portal-ms while trying to get vehicle is: {}", responseEntity.getStatusCode());
+            log.error("Response status from portal-ms while trying to get vehicle is: {}",
+                    responseEntity.getStatusCode());
             return null;
         }
     }
 
     public DriverDto getDriverById(long driverId, String companyName) {
-        String url = String.format(getPortalServiceIp() + "portal/v1/user/%d?companyName=%s", driverId, companyName);
+        String url = String.format(getPortalServiceIp() + "portal/v1/user/%d?companyName=%s",
+                driverId,
+                companyName);
 
         ResponseEntity<DriverDto> responseEntity = restTemplate.getForEntity(url, DriverDto.class);
 
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             return responseEntity.getBody();
         } else {
-            log.error("Response status from portal-ms while trying to get driver is: {}", responseEntity.getStatusCode());
+            log.error("Response status from portal-ms while trying to get driver is: {}",
+                    responseEntity.getStatusCode());
             return null;
         }
     }
@@ -62,12 +70,13 @@ public class PortalProvider {
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             return responseEntity.getBody();
         } else {
-            log.error("Response status from portal-ms while trying to get company is: {}", responseEntity.getStatusCode());
+            log.error("Response status from portal-ms while trying to get company is: {}",
+                    responseEntity.getStatusCode());
             return null;
         }
     }
 
-    private String getPortalServiceIp(){
+    private String getPortalServiceIp() {
         Application application = eurekaClient.getApplication("PORTAL-MS");
         List<InstanceInfo> instanceInfos = application.getInstances();
 

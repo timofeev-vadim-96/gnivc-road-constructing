@@ -16,12 +16,16 @@ import java.awt.geom.Point2D;
 public class TaskDto {
     @NotNull
     private Point2D.Double startPoint;
+
     @NotNull
     private Point2D.Double finishPoint;
+
     @NotNull
     private String cargoDescription;
+
     @NotNull
     private Long driverId;
+
     @NotNull
     private Long vehicleId;
 }

@@ -15,8 +15,10 @@ import java.time.LocalDateTime;
 public class TripLocationDto {
     @NotNull
     private Long tripId;
+
     @NotNull
     private Point2D.Double location;
+
     @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime time;

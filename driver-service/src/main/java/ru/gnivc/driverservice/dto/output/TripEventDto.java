@@ -15,8 +15,10 @@ import java.time.LocalDateTime;
 public class TripEventDto {
     @NotNull
     private Long tripId;
+
     @NotNull
     private TripEventEnum tripEventEnum;
+
     @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime time;

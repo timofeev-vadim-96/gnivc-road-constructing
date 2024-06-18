@@ -24,8 +24,8 @@ public class KafkaCompanyStatisticsConsumerConfig {
     /**
      * Конфигурация консюмера
      */
-    public Map<String, Object> consumerConfig(){
-        HashMap<String, Object> props = new HashMap<>();
+    public Map<String, Object> consumerConfig() {
+        Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -36,7 +36,7 @@ public class KafkaCompanyStatisticsConsumerConfig {
      * Фабрика слушателей
      */
     @Bean
-    public ConsumerFactory<String, String> companyStatisticsConsumerFactory(){
+    public ConsumerFactory<String, String> companyStatisticsConsumerFactory() {
         return new DefaultKafkaConsumerFactory<>(consumerConfig());
     }
 
@@ -45,7 +45,8 @@ public class KafkaCompanyStatisticsConsumerConfig {
      */
     @Bean
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>>
-    companyStatisticsListenerContainerFactory(@Qualifier("companyStatisticsConsumerFactory") ConsumerFactory<String, String> consumerFactory){
+    companyStatisticsListenerContainerFactory(
+            @Qualifier("companyStatisticsConsumerFactory") ConsumerFactory<String, String> consumerFactory) {
         ConcurrentKafkaListenerContainerFactory<String, String>
                 factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);

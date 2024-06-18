@@ -9,6 +9,7 @@ import lombok.Data;
 public class ResetPasswordDto {
     @NotNull
     private String resetCode;
+
     @NotNull
     private String newPassword;
 }

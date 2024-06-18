@@ -14,9 +14,13 @@ import java.time.LocalDate;
 @Data
 public class VehicleDto {
     private Long id;
+
     private String vin;
+
     private LocalDate releaseYear;
+
     private String stateNumber;
+
     private CompanyEntity company;
 
     @Data
@@ -24,10 +28,15 @@ public class VehicleDto {
     @AllArgsConstructor
     static class CompanyEntity {
         private Long id;
+
         private String name;
+
         private String inn;
+
         private String address;
+
         private String kpp;
+
         private String ogrn;
     }
 }

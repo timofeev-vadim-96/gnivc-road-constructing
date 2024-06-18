@@ -28,20 +28,26 @@ import java.util.Optional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class TaskServiceImpl implements TaskService{
+public class TaskServiceImpl implements TaskService {
     private final PortalProvider portalProvider;
+
     private final CompanyDao companyDao;
+
     private final DriverDao driverDao;
+
     private final VehicleDao vehicleDao;
+
     private final TaskDao taskDao;
 
-    public ResponseEntity<Void> removeById(long taskId, String companyName){
+    public ResponseEntity<Void> removeById(long taskId, String companyName) {
         Optional<TaskEntity> taskOptional = taskDao.findById(taskId);
         if (taskOptional.isEmpty()) {
             String answer = String.format("Task with id = %s not found", taskId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, answer);
         } else if (!taskOptional.get().getCompany().getCompanyName().equals(companyName)) {
-            String answer = String.format("The task with id = %s was created by a logistics specialist from another company", taskId);
+            String answer = String.format(
+                    "The task with id = %s was created by a logistics specialist from another company",
+                    taskId);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, answer);
         } else {
             TaskEntity task = taskOptional.get();
@@ -69,7 +75,9 @@ public class TaskServiceImpl implements TaskService{
             String answer = String.format("Task with id = %s not found", taskId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, answer);
         } else if (!task.get().getCompany().getCompanyName().equals(companyName)) {
-            String answer = String.format("The task with id = %s was created by a logistics specialist from another company", taskId);
+            String answer = String.format(
+                    "The task with id = %s was created by a logistics specialist from another company",
+                    taskId);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, answer);
         } else {
             return new ResponseEntity<>(task.get(), HttpStatus.OK);
@@ -98,12 +106,12 @@ public class TaskServiceImpl implements TaskService{
         }
     }
 
-    public ResponseEntity<List<TaskEntity>> getTaskByDriver(long driverId, String companyName){
+    public ResponseEntity<List<TaskEntity>> getTaskByDriver(long driverId, String companyName) {
         try {
             DriverEntity driver = getDriver(driverId, companyName);
             List<TaskEntity> driverTasks = taskDao.findAllByDriver(driver);
             return new ResponseEntity<>(driverTasks, HttpStatus.OK);
-        } catch (NotFoundException e){
+        } catch (NotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
@@ -153,7 +161,10 @@ public class TaskServiceImpl implements TaskService{
             if (vehicleFromPortal == null) {
                 throw new NotFoundException("Vehicle with id = " + vehicleId + " not found in portal-ms");
             } else {
-                VehicleEntity newVehicle = new VehicleEntity(vehicleFromPortal.getId(), vehicleFromPortal.getStateNumber());
+                VehicleEntity newVehicle = new VehicleEntity(
+                        vehicleFromPortal.getId(),
+                        vehicleFromPortal.getStateNumber());
+
                 VehicleEntity saved = vehicleDao.save(newVehicle);
                 log.info("saved vehicle: {}", saved);
                 return saved;
@@ -169,16 +180,41 @@ public class TaskServiceImpl implements TaskService{
         int companyCounter = 0;
         int driverCounter = 0;
         int vehicleCounter = 0;
-        for (TaskEntity task: tasks){
-            if (companyCounter > 0 && driverCounter > 0 && vehicleCounter > 0) break;
+        for (TaskEntity task : tasks) {
+            if (companyCounter > 0 && driverCounter > 0 && vehicleCounter > 0) {
+                break;
+            }
 
-            if (task.getCompany().equals(company)) companyCounter++;
-            if (task.getDriver().equals(driver)) driverCounter++;
-            if (task.getVehicle().equals(vehicle)) vehicleCounter++;
+            if (task.getCompany().equals(company)) {
+                companyCounter++;
+            }
+            if (task.getDriver().equals(driver)) {
+                driverCounter++;
+            }
+            if (task.getVehicle().equals(vehicle)) {
+                vehicleCounter++;
+            }
         }
+        removeCompanyOrphan(company, companyCounter);
+        removeDriverOrphan(driver, driverCounter);
+        removeVehicleOrphan(vehicle, vehicleCounter);
+    }
 
-        if (companyCounter == 0) companyDao.delete(company);
-        if (driverCounter == 0) driverDao.delete(driver);
-        if (vehicleCounter == 0) vehicleDao.delete(vehicle);
+    private void removeCompanyOrphan(CompanyEntity company, int companyCounter) {
+        if (companyCounter == 0) {
+            companyDao.delete(company);
+        }
+    }
+
+    private void removeDriverOrphan(DriverEntity driver, int driverCounter) {
+        if (driverCounter == 0) {
+            driverDao.delete(driver);
+        }
+    }
+
+    private void removeVehicleOrphan(VehicleEntity vehicle, int vehicleCounter) {
+        if (vehicleCounter == 0) {
+            vehicleDao.delete(vehicle);
+        }
     }
 }

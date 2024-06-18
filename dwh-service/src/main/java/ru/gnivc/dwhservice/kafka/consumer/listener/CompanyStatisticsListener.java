@@ -23,7 +23,9 @@ import java.util.Optional;
 @Slf4j
 public class CompanyStatisticsListener {
     private final JsonMapper jsonMapper;
+
     private final CompanyDao companyDao;
+
     private final CompanyStatisticsDao statisticsDao;
 
     public CompanyStatisticsListener(CompanyDao companyDao, CompanyStatisticsDao statisticsDao) {
@@ -42,7 +44,8 @@ public class CompanyStatisticsListener {
 
         Map<String, StatisticsByCompanyDto> companiesStatistics;
         try {
-            companiesStatistics = jsonMapper.readValue(data, new TypeReference<>() {});
+            companiesStatistics = jsonMapper.readValue(data, new TypeReference<>() {
+            });
         } catch (Exception e) {
             throw new RuntimeException("Exception when trying to parse JSON message from Kafka.", e);
         }
@@ -50,8 +53,8 @@ public class CompanyStatisticsListener {
         saveCompaniesStatistics(companiesStatistics);
     }
 
-    private void saveCompaniesStatistics(Map<String, StatisticsByCompanyDto> companiesStatisticsMap){
-        for (String key: companiesStatisticsMap.keySet()){
+    private void saveCompaniesStatistics(Map<String, StatisticsByCompanyDto> companiesStatisticsMap) {
+        for (String key : companiesStatisticsMap.keySet()) {
             Optional<CompanyEntity> companyOptional = companyDao.findByName(key);
             CompanyEntity company = companyOptional.orElseGet(() -> companyDao.save(
                     CompanyEntity.builder()
@@ -61,10 +64,11 @@ public class CompanyStatisticsListener {
             Optional<CompanyStatisticsEntity> companyStatisticsOptional = statisticsDao.findByCompany(company);
             CompanyStatisticsEntity companyStatistics;
             StatisticsByCompanyDto dto = companiesStatisticsMap.get(key);
-            if (companyStatisticsOptional.isEmpty()){
+            if (companyStatisticsOptional.isEmpty()) {
                 companyStatistics = CompanyStatisticsMapper.mapFromDtoToEntity(company, dto);
             } else {
-                companyStatistics = CompanyStatisticsMapper.updateCompanyStatisticsEntity(companyStatisticsOptional.get(), dto);
+                companyStatistics = CompanyStatisticsMapper
+                        .updateCompanyStatisticsEntity(companyStatisticsOptional.get(), dto);
             }
             statisticsDao.save(companyStatistics);
         }

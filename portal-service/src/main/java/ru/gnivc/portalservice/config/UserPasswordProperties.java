@@ -10,9 +10,12 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 @Getter
 public class UserPasswordProperties {
-    public int length;
-    public int lowerCaseCharsQuantity;
-    public int upperCaseCharsQuantity;
-    public int digitsQuantity;
+    private int length;
+
+    private int lowerCaseCharsQuantity;
+
+    private int upperCaseCharsQuantity;
+
+    private int digitsQuantity;
 }
 

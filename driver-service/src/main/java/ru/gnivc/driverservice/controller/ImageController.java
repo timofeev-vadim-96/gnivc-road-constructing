@@ -4,7 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 import ru.gnivc.driverservice.service.ImageService;
 
@@ -48,14 +54,5 @@ public class ImageController {
                                             @RequestParam String companyName) {
         String imageName = companyName + "/" + taskId + "/" + tripId + "/" + fileName;
         return imageService.removeImage(imageName);
-    }
-
-    @DeleteMapping
-    public ResponseEntity<Void> removeImage(@RequestParam long taskId,
-                                            @RequestParam long tripId,
-                                            @RequestParam String fileName,
-                                            @RequestParam String companyName) {
-        String imageName = companyName + "/" + taskId + "/" + tripId + "/" + fileName;
-        return minioService.removeImage(imageName);
     }
 }

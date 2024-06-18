@@ -16,7 +16,7 @@ public class DwhController {
     private final DwhService service;
 
     @GetMapping()
-    public ResponseEntity<StatisticsByCompanyDto> getCancelledTripsQuantity(@RequestParam String companyName){
+    public ResponseEntity<StatisticsByCompanyDto> getCancelledTripsQuantity(@RequestParam String companyName) {
         return service.getStatisticsByCompany(companyName);
     }
 }

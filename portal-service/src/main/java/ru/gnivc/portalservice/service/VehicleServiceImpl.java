@@ -18,12 +18,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class VehicleServiceImpl implements VehicleService {
     private final VehicleDao vehicleDao;
+
     private final CompanyDao companyDao;
 
     public VehicleEntity save(VehicleDto vehicleDto, String companyName) {
         Optional<CompanyEntity> company = companyDao.findByName(companyName);
-        if (company.isEmpty()) return null;
-        else {
+        if (company.isEmpty()) {
+            return null;
+        } else {
             VehicleEntity vehicle = VehicleEntity.builder()
                     .vin(vehicleDto.getVin())
                     .releaseYear(vehicleDto.getReleaseYear())

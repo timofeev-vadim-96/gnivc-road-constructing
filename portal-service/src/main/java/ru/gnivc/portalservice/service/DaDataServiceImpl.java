@@ -21,10 +21,10 @@ public class DaDataServiceImpl implements DaDataService {
 
     public DaDataServiceImpl(DadataProperties dadataProperties) {
         this.webClient = WebClient.builder()
-                .baseUrl(dadataProperties.apiEndpoint)
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Token " + dadataProperties.apiKey)
+                .baseUrl(dadataProperties.getApiEndpoint())
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Token " + dadataProperties.getApiKey())
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .defaultHeader("X-secret", dadataProperties.secret)
+                .defaultHeader("X-secret", dadataProperties.getSecret())
                 .build();
     }
 
@@ -44,23 +44,11 @@ public class DaDataServiceImpl implements DaDataService {
         if (response == null) {
             company.set(Optional.empty());
         } else {
-            String address = response.path("suggestions").get(0)
-                    .path("data")
-                    .path("address")
-                    .path("value").asText();
-            String kpp = response.path("suggestions").get(0)
-                    .path("data")
-                    .path("kpp").asText();
-            String ogrn = response.path("suggestions").get(0)
-                    .path("data")
-                    .path("ogrn").asText();
-            String inn = response.path("suggestions").get(0)
-                    .path("data")
-                    .path("inn").asText();
-            String fullName = response.path("suggestions").get(0)
-                    .path("data")
-                    .path("name")
-                    .path("full").asText();
+            String address = getAddress(response);
+            String kpp = getKpp(response);
+            String ogrn = getOgrn(response);
+            String inn = getInn(response);
+            String fullName = getFullName(response);
 
             company.set(Optional.ofNullable(CompanyEntity.builder()
                     .inn(inn)
@@ -71,5 +59,42 @@ public class DaDataServiceImpl implements DaDataService {
                     .build()));
         }
         return company.get();
+    }
+
+    private String getFullName(JsonNode response) {
+        String fullName = response.path("suggestions").get(0)
+                .path("data")
+                .path("name")
+                .path("full").asText();
+        return fullName;
+    }
+
+    private String getInn(JsonNode response) {
+        String inn = response.path("suggestions").get(0)
+                .path("data")
+                .path("inn").asText();
+        return inn;
+    }
+
+    private String getOgrn(JsonNode response) {
+        String ogrn = response.path("suggestions").get(0)
+                .path("data")
+                .path("ogrn").asText();
+        return ogrn;
+    }
+
+    private String getKpp(JsonNode response) {
+        String kpp = response.path("suggestions").get(0)
+                .path("data")
+                .path("kpp").asText();
+        return kpp;
+    }
+
+    private String getAddress(JsonNode response) {
+        String address = response.path("suggestions").get(0)
+                .path("data")
+                .path("address")
+                .path("value").asText();
+        return address;
     }
 }

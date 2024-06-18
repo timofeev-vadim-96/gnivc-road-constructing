@@ -4,7 +4,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.server.ResponseStatusException;
 import ru.gnivc.portalservice.dto.input.UserDto;
 import ru.gnivc.portalservice.dto.output.CompanyCardDto;
@@ -22,6 +29,7 @@ import java.util.List;
 @RequestMapping("/portal/v1/company")
 public class CompanyController {
     private final CompanyService companyService;
+
     private final CompanyUserService userService;
 
     /**
@@ -30,7 +38,7 @@ public class CompanyController {
     @PostMapping()
     public ResponseEntity<CompanyEntity> createCompany(
             @RequestParam String inn,
-            @RequestParam String email){
+            @RequestParam String email) {
         return companyService.createCompany(inn, email);
     }
 
@@ -39,7 +47,7 @@ public class CompanyController {
      */
     @PutMapping()
     public ResponseEntity<CompanyEntity> updateCompany(@RequestParam String inn,
-                                              @RequestParam String companyName){
+                                                       @RequestParam String companyName) {
         return companyService.updateCompany(inn, companyName);
     }
 
@@ -47,7 +55,7 @@ public class CompanyController {
      * Deleting a company
      */
     @DeleteMapping()
-    public ResponseEntity<Void> removeCompany(@RequestParam String companyName){
+    public ResponseEntity<Void> removeCompany(@RequestParam String companyName) {
         return companyService.remove(companyName);
     }
 
@@ -55,12 +63,14 @@ public class CompanyController {
      * Viewing a company
      */
     @GetMapping()
-    public ResponseEntity<CompanyCardDto> getCompany(@RequestParam String companyName){
+    public ResponseEntity<CompanyCardDto> getCompany(@RequestParam String companyName) {
         CompanyCardDto companyCard = companyService.getCompanyCard(companyName);
-        if (companyCard != null){
+        if (companyCard != null) {
             return new ResponseEntity<>(companyCard, HttpStatus.OK);
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The company with id = " + companyName + " was not found");
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "The company with id = " + companyName + " was not found");
         }
     }
 
@@ -68,7 +78,7 @@ public class CompanyController {
      * Getting a list of companies with basic information
      */
     @GetMapping("/list")
-    public ResponseEntity<List<SimpleCompanyDto>> getCompanies(@RequestParam String companyName){ //solely for defining user roles on the Gateway side
+    public ResponseEntity<List<SimpleCompanyDto>> getCompanies(@RequestParam String companyName) {
         List<SimpleCompanyDto> companies = companyService.getCompanies();
         return new ResponseEntity<>(companies, HttpStatus.OK);
     }
@@ -77,7 +87,7 @@ public class CompanyController {
      * Getting a list of roles available in companies
      */
     @GetMapping("/roles")
-    public ResponseEntity<List<String>> getRoles(@RequestParam String companyName){ //solely for defining user roles on the Gateway side
+    public ResponseEntity<List<String>> getRoles(@RequestParam String companyName) {
         List<String> roles = companyService.getClientsRoles();
         return new ResponseEntity<>(roles, HttpStatus.OK);
     }
@@ -86,12 +96,14 @@ public class CompanyController {
      * Getting a list of company employees and their roles
      */
     @GetMapping("/users")
-    public ResponseEntity<List<CompanyUserDto>> getCompanyUsers(@RequestParam String companyName){
+    public ResponseEntity<List<CompanyUserDto>> getCompanyUsers(@RequestParam String companyName) {
         List<CompanyUserDto> users = userService.getCompanyUsers(companyName);
-        if (users != null){
+        if (users != null) {
             return new ResponseEntity<>(users, HttpStatus.OK);
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The company with id = " + companyName + " was not found");
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "The company with id = " + companyName + " was not found");
         }
     }
 
@@ -101,11 +113,14 @@ public class CompanyController {
     @PostMapping("/admin/user")
     public ResponseEntity<String> registerCompanyUserByAdmin(
             @RequestParam(name = "companyName") String companyName,
-            @Valid @RequestBody UserDto userDto){
+            @Valid @RequestBody UserDto userDto) {
         if (userDto.getClientRole() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The user's role in the company is not defined");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "The user's role in the company is not defined");
+        } else {
+            return userService.createClientUser(companyName, userDto);
         }
-        else return userService.createClientUser(companyName, userDto);
     }
 
     /**
@@ -114,11 +129,14 @@ public class CompanyController {
     @PostMapping("/logist/user")
     public ResponseEntity<String> registerCompanyUserByLogist(
             @RequestParam(name = "companyName") String companyName,
-            @Valid @RequestBody UserDto userDto){
+            @Valid @RequestBody UserDto userDto) {
         if (userDto.getClientRole() == null || !userDto.getClientRole().equals(ClientRole.ROLE_DRIVER)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The role of the user registered by the " +
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "The role of the user registered by the " +
                     "logistician in the company should not be different from driver");
+        } else {
+            return userService.createClientUser(companyName, userDto);
         }
-        else return userService.createClientUser(companyName, userDto);
     }
 }

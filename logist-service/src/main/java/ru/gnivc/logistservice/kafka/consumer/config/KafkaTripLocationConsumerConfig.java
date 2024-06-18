@@ -2,7 +2,6 @@ package ru.gnivc.logistservice.kafka.consumer.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-public class  KafkaTripLocationConsumerConfig {
+public class KafkaTripLocationConsumerConfig {
 
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
@@ -25,8 +24,8 @@ public class  KafkaTripLocationConsumerConfig {
     /**
      * Конфигурация консюмера
      */
-    public Map<String, Object> consumerConfig(){
-        HashMap<String, Object> props = new HashMap<>();
+    public Map<String, Object> consumerConfig() {
+        Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -37,7 +36,7 @@ public class  KafkaTripLocationConsumerConfig {
      * Фабрика слушателей
      */
     @Bean
-    public ConsumerFactory<String, String> tripLocationPointsConsumerFactory(){
+    public ConsumerFactory<String, String> tripLocationPointsConsumerFactory() {
         return new DefaultKafkaConsumerFactory<>(consumerConfig());
     }
 
@@ -46,7 +45,9 @@ public class  KafkaTripLocationConsumerConfig {
      */
     @Bean
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>>
-    tripLocationListenerContainerFactory(@Qualifier("tripLocationPointsConsumerFactory") ConsumerFactory<String, String> consumerFactory){
+    tripLocationListenerContainerFactory(
+            @Qualifier("tripLocationPointsConsumerFactory") ConsumerFactory<String, String> consumerFactory) {
+
         ConcurrentKafkaListenerContainerFactory<String, String>
                 factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);

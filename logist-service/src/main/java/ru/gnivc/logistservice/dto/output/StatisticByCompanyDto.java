@@ -11,9 +11,14 @@ import lombok.NoArgsConstructor;
 @Builder
 public class StatisticByCompanyDto {
     private int tripCreated;
+
     private int tripStarted;
+
     private int tripEnded;
+
     private int tripCanceled;
+
     private int tripAccident;
+
     private int tasks;
 }

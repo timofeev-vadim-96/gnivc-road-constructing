@@ -13,5 +13,6 @@ import java.util.List;
 @AfterReturningLogger
 public interface TaskDao extends JpaRepository<TaskEntity, Long> {
     List<TaskEntity> findAllByCompany(CompanyEntity company);
+
     List<TaskEntity> findAllByDriver(DriverEntity driver);
 }

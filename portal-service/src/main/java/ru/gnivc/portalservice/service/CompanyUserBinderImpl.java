@@ -17,7 +17,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CompanyUserBinderImpl implements CompanyUserBinder {
     private final CompanyUserDao companyUserDao;
+
     private final UserDao userDao;
+
     private final CompanyDao companyDao;
 
     public void bindUserWithCompany(String email, String companyName, ClientRole role) {

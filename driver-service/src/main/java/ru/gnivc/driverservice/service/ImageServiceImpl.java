@@ -1,6 +1,12 @@
 package ru.gnivc.driverservice.service;
 
-import io.minio.*;
+import io.minio.MinioClient;
+import io.minio.RemoveObjectArgs;
+import io.minio.GetObjectArgs;
+import io.minio.RemoveBucketArgs;
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
+import io.minio.PutObjectArgs;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -19,11 +25,17 @@ import java.io.InputStream;
 @RequiredArgsConstructor
 @Slf4j
 public class ImageServiceImpl implements ImageService {
-    private final MinioClient minioClient;
-    private final LogistProvider provider;
     private static final String BUCKET_NAME = "gnivc-bucket";
 
-    public ResponseEntity<String> uploadImage(String resultFileName, MultipartFile file, String companyName, long tripId) {
+    private final MinioClient minioClient;
+
+    private final LogistProvider provider;
+
+    public ResponseEntity<String> uploadImage(
+            String resultFileName,
+            MultipartFile file,
+            String companyName,
+            long tripId) {
         TripDto trip = provider.getTripById(tripId, companyName);
         log.info("trip received from logist-ms: " + trip);
         String answer = "There is not trip with id = " + tripId + " and companyName = " + companyName;

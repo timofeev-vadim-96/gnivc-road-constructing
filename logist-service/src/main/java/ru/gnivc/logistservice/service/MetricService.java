@@ -22,26 +22,29 @@ import java.util.concurrent.TimeUnit;
 @EnableScheduling
 @Slf4j
 public class MetricService {
-    private final CustomQueriesDao customDao;
-    private final CompanyDao companyDao;
-    private final KafkaProducer kafkaProducer;
-    private static final int SCHEDULING_DELAY = 1;
+    private static final int SCHEDULING_DELAY_HOURS = 1;
 
-    @Scheduled(fixedDelay = SCHEDULING_DELAY, timeUnit = TimeUnit.HOURS)
-    private void sendMetricsToDwh(){
+    private final CustomQueriesDao customDao;
+
+    private final CompanyDao companyDao;
+
+    private final KafkaProducer kafkaProducer;
+
+    @Scheduled(fixedDelay = SCHEDULING_DELAY_HOURS, timeUnit = TimeUnit.HOURS)
+    private void sendMetricsToDwh() {
         Map<String, StatisticByCompanyDto> companiesStatistics = getCompaniesStatistics();
         ResponseEntity<Void> response = kafkaProducer.sendCompanyStatistics(companiesStatistics);
-        if (response.getStatusCode() == HttpStatus.CREATED){
+        if (response.getStatusCode() == HttpStatus.CREATED) {
             log.info("Statistics on companies sent to dwh-ms: " + companiesStatistics);
         }
     }
 
-    private Map<String, StatisticByCompanyDto> getCompaniesStatistics(){
+    private Map<String, StatisticByCompanyDto> getCompaniesStatistics() {
         Map<String, StatisticByCompanyDto> companiesStatistics = customDao.getCompaniesStatisticsToday();
         fillMapWithCompaniesWithoutStat(companiesStatistics);
 
         Map<String, Integer> tasksQuantityByCompany = customDao.getCompaniesTaskQuantity();
-        for (String key: companiesStatistics.keySet()){
+        for (String key : companiesStatistics.keySet()) {
             int tasksQuantity = tasksQuantityByCompany.get(key);
             companiesStatistics.get(key).setTasks(tasksQuantity);
         }
@@ -51,10 +54,10 @@ public class MetricService {
     /**
      * If the company does not have event statistics for today, add an empty one
      */
-    private void fillMapWithCompaniesWithoutStat(Map<String, StatisticByCompanyDto> companiesStatistics){
+    private void fillMapWithCompaniesWithoutStat(Map<String, StatisticByCompanyDto> companiesStatistics) {
         List<CompanyEntity> companies = companyDao.findAll();
-        for (CompanyEntity company: companies){
-            if (!companiesStatistics.containsKey(company.getCompanyName())){
+        for (CompanyEntity company : companies) {
+            if (!companiesStatistics.containsKey(company.getCompanyName())) {
                 companiesStatistics.put(company.getCompanyName(), new StatisticByCompanyDto());
             }
         }

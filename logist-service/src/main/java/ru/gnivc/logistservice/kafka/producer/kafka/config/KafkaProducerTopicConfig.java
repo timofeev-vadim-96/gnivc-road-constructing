@@ -9,7 +9,7 @@ import org.springframework.kafka.config.TopicBuilder;
 public class KafkaProducerTopicConfig {
 
     @Bean
-    public NewTopic companyStatisticsTopic(){
+    public NewTopic companyStatisticsTopic() {
         return TopicBuilder.name("company_statistics")
                 .build();
     }

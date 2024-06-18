@@ -14,8 +14,10 @@ import java.time.LocalDateTime;
 public class TripEventDto {
     @NotNull
     private Long tripId;
+
     @NotNull
     private TripEventEnum tripEventEnum;
+
     @NotNull
     private LocalDateTime time;
 }

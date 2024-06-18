@@ -13,9 +13,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class TripDto {
     private Long id;
+
     private TaskDto task;
+
     private LocalDateTime creationTime;
+
     private LocalDateTime startTime;
+
     private LocalDateTime endTime;
 }
 

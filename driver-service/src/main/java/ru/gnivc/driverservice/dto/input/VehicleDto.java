@@ -1,6 +1,5 @@
 package ru.gnivc.driverservice.dto.input;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,5 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class VehicleDto {
     private Long id;
+
     private String stateNumber;
 }

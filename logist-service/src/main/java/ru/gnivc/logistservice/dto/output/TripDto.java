@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.gnivc.logistservice.model.TaskEntity;
-import ru.gnivc.logistservice.util.TripEventEnum;
 
 import java.time.LocalDateTime;
 
@@ -15,9 +14,14 @@ import java.time.LocalDateTime;
 @Data
 public class TripDto {
     private Long id;
+
     private TaskEntity task;
+
     private LocalDateTime creationTime;
+
     private LocalDateTime startTime;
+
     private LocalDateTime endTime;
+
     private String currentStatus;
 }

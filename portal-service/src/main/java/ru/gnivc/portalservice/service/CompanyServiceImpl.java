@@ -25,10 +25,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CompanyServiceImpl implements CompanyService {
     private final KeycloakService keycloakService;
+
     private final DaDataService daDataService;
 
     private final CompanyDao companyDao;
+
     private final CustomQueriesDao queriesDao;
+
     private final CompanyUserBinder companyUserService;
 
     @Transactional
@@ -69,8 +72,9 @@ public class CompanyServiceImpl implements CompanyService {
         Optional<Integer> logists = queriesDao.countCompanyUsersWithSpecificRole(companyName, ClientRole.ROLE_LOGIST);
         Optional<Integer> drivers = queriesDao.countCompanyUsersWithSpecificRole(companyName, ClientRole.ROLE_DRIVER);
         Optional<CompanyEntity> companyOptional = companyDao.findByName(companyName);
-        if (companyOptional.isEmpty() || drivers.isEmpty() || logists.isEmpty()) return null;
-        else {
+        if (companyOptional.isEmpty() || drivers.isEmpty() || logists.isEmpty()) {
+            return null;
+        } else {
             CompanyEntity company = companyOptional.get();
             return new CompanyCardDto(
                     company.getId(),

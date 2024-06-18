@@ -20,12 +20,14 @@ import java.util.Optional;
 @AfterReturningLogger
 public class CustomQueriesDao {
     private final CompanyDao companyDao;
+
     private final JdbcTemplate jdbcTemplate;
 
     public Optional<List<CompanyUserDto>> getCompanyUsers(String companyName) {
         Optional<CompanyEntity> company = companyDao.findByName(companyName);
-        if (company.isEmpty()) return Optional.empty();
-        else {
+        if (company.isEmpty()) {
+            return Optional.empty();
+        } else {
             Long id = company.get().getId();
             return Optional.of(jdbcTemplate.query("" +
                     "select users.id, users.email, users.first_name, users.last_name, " +
@@ -62,8 +64,9 @@ public class CustomQueriesDao {
 
     public Optional<Integer> countCompanyUsersWithSpecificRole(String companyName, ClientRole role) {
         Optional<CompanyEntity> company = companyDao.findByName(companyName);
-        if (company.isEmpty()) return Optional.empty();
-        else {
+        if (company.isEmpty()) {
+            return Optional.empty();
+        } else {
             Long id = company.get().getId();
             String userRole = role.name();
             return Optional.ofNullable(jdbcTemplate.queryForObject("" +

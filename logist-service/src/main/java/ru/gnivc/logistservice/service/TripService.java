@@ -10,9 +10,14 @@ import java.util.List;
 
 public interface TripService {
     ResponseEntity<TripEntity> create(long taskId, String companyName);
+
     ResponseEntity<TripDto> get(long tripId, String companyName);
+
     ResponseEntity<List<TripEntity>> getAllByTask(long taskId, String companyName);
+
     ResponseEntity<Void> removeById(long tripId, String companyName);
+
     ResponseEntity<List<TripEventEntity>> getTripWithEvents(long tripId, String companyName);
+
     ResponseEntity<List<TripLocationEntity>> getTripWithLocaitonPoints(long tripId, String companyName);
 }

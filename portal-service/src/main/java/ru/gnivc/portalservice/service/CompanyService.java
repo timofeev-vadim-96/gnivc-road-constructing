@@ -15,6 +15,7 @@ public interface CompanyService {
     List<SimpleCompanyDto> getCompanies();
 
     CompanyCardDto getCompanyCard(String companyName);
+
     ResponseEntity<Void> remove(String companyName);
 
     ResponseEntity<CompanyEntity> updateCompany(String inn, String companyName);

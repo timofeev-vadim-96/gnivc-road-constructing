@@ -1,6 +1,5 @@
 package ru.gnivc.portalservice.dto.input;
 
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,8 +13,10 @@ import java.time.LocalDate;
 public class VehicleDto {
     @NotNull
     private String vin;
+
     @NotNull
     private LocalDate releaseYear;
+
     @NotNull
     private String stateNumber;
 }

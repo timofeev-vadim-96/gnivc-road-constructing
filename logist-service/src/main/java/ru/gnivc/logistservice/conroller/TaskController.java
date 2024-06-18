@@ -3,11 +3,17 @@ package ru.gnivc.logistservice.conroller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import ru.gnivc.logistservice.dto.input.TaskDto;
 import ru.gnivc.logistservice.model.TaskEntity;
 import ru.gnivc.logistservice.service.TaskService;
-import ru.gnivc.logistservice.service.TaskServiceImpl;
 
 import java.util.List;
 
@@ -19,30 +25,30 @@ public class TaskController {
 
     @PostMapping
     public ResponseEntity<TaskEntity> createTask(@RequestParam String companyName,
-                                                 @Valid @RequestBody TaskDto task){
+                                                 @Valid @RequestBody TaskDto task) {
         return taskService.create(task, companyName);
     }
 
     @GetMapping("/{taskId}")
     public ResponseEntity<TaskEntity> getTask(@RequestParam String companyName,
-                                              @PathVariable long taskId){
+                                              @PathVariable long taskId) {
         return taskService.findById(taskId, companyName);
     }
 
     @DeleteMapping("/{taskId}")
     public ResponseEntity<Void> removeTask(@RequestParam String companyName,
-                                           @PathVariable long taskId){
+                                           @PathVariable long taskId) {
         return taskService.removeById(taskId, companyName);
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<TaskEntity>> getAllByCompany(@RequestParam String companyName){
+    public ResponseEntity<List<TaskEntity>> getAllByCompany(@RequestParam String companyName) {
         return taskService.findAllByCompanyName(companyName);
     }
 
     @GetMapping("/byDriver/{driverId}")
     public ResponseEntity<List<TaskEntity>> getAllByDriver(@PathVariable long driverId,
-                                                           @RequestParam String companyName){
+                                                           @RequestParam String companyName) {
         return taskService.getTaskByDriver(driverId, companyName);
     }
 

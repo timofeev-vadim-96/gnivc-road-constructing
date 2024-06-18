@@ -15,11 +15,13 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class KafkaProducer {
+    private static final String COMPANY_STAT_TOPIC = "company_statistics";
+
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private final String COMPANY_STAT_TOPIC = "company_statistics";
+
     private final JsonConverter jsonConverter;
 
-    public ResponseEntity<Void> sendCompanyStatistics(Map<String, StatisticByCompanyDto> stat){
+    public ResponseEntity<Void> sendCompanyStatistics(Map<String, StatisticByCompanyDto> stat) {
         try {
             String message = jsonConverter.serializeToJson(stat);
             SendResult<String, String> result = kafkaTemplate.send(COMPANY_STAT_TOPIC, message).get();
@@ -29,7 +31,7 @@ public class KafkaProducer {
             } else {
                 return new ResponseEntity<>(HttpStatus.CREATED);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }

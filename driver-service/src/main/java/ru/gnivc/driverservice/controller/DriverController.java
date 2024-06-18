@@ -3,7 +3,13 @@ package ru.gnivc.driverservice.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import ru.gnivc.driverservice.dto.input.TaskDto;
 import ru.gnivc.driverservice.dto.input.TripDto;
 import ru.gnivc.driverservice.dto.output.TripEventDto;
@@ -18,6 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DriverController {
     private final DriverService driverService;
+
     private final KafkaProducer kafkaProducer;
 
     @GetMapping("/task/{driverId}")

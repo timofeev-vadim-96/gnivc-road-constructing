@@ -25,6 +25,7 @@ public class JsonConverter {
     public TripEventDto getTripEventDto(String json) throws JsonProcessingException {
         return jsonMapper.readValue(json, TripEventDto.class);
     }
+
     public TripLocationDto getTripLocationDto(String json) throws JsonProcessingException {
         return jsonMapper.readValue(json, TripLocationDto.class);
     }

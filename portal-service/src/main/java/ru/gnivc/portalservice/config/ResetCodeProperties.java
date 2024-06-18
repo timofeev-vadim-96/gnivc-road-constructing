@@ -10,10 +10,14 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 @Getter
 public class ResetCodeProperties {
-    public int length;
-    public int lowerCaseCharsQuantity;
-    public int upperCaseCharsQuantity;
-    public int digitsQuantity;
-    public int expirationDateInMinutes;
+    private int length;
+
+    private int lowerCaseCharsQuantity;
+
+    private int upperCaseCharsQuantity;
+
+    private int digitsQuantity;
+
+    private int expirationDateInMinutes;
 }
 

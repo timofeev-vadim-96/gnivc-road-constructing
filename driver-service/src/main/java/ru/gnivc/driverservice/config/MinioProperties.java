@@ -9,8 +9,12 @@ import org.springframework.context.annotation.Configuration;
 @Data
 public class MinioProperties {
     private String address;
+
     private int port;
+
     private boolean tsl;
+
     private String login;
+
     private String password;
 }

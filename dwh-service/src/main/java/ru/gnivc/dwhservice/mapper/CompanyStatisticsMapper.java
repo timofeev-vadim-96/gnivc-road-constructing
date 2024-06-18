@@ -8,7 +8,7 @@ import ru.gnivc.dwhservice.model.CompanyStatisticsEntity;
 @Component
 public class CompanyStatisticsMapper {
 
-    public static StatisticsByCompanyDto convertEntityToDto(CompanyStatisticsEntity entity){
+    public static StatisticsByCompanyDto convertEntityToDto(CompanyStatisticsEntity entity) {
         return StatisticsByCompanyDto.builder()
                 .tasks(entity.getTasks())
                 .tripAccident(entity.getTripAccident())
@@ -33,7 +33,10 @@ public class CompanyStatisticsMapper {
         return companyStatistics;
     }
 
-    public static CompanyStatisticsEntity updateCompanyStatisticsEntity(CompanyStatisticsEntity companyStatistics, StatisticsByCompanyDto dto) {
+    public static CompanyStatisticsEntity updateCompanyStatisticsEntity(
+            CompanyStatisticsEntity companyStatistics,
+            StatisticsByCompanyDto dto) {
+
         companyStatistics.setTasks(dto.getTasks());
         companyStatistics.setTripCreated(dto.getTripCreated());
         companyStatistics.setTripEnded(dto.getTripEnded());

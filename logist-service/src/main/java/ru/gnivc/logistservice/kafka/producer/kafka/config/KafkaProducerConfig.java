@@ -21,8 +21,8 @@ public class KafkaProducerConfig {
     /**
      * Конфигурация продюсера
      */
-    public Map<String, Object> producerConfig(){
-        HashMap<String, Object> props = new HashMap<>();
+    public Map<String, Object> producerConfig() {
+        Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -33,7 +33,7 @@ public class KafkaProducerConfig {
      * Фабрика продюсеров
      */
     @Bean
-    public ProducerFactory<String, String> producerFactory(){
+    public ProducerFactory<String, String> producerFactory() {
         return new DefaultKafkaProducerFactory<>(producerConfig());
     }
 
@@ -41,7 +41,7 @@ public class KafkaProducerConfig {
      * KafkaTemplate - для отправки сообщений в брокер Kafka.
      */
     @Bean
-    public KafkaTemplate<String, String> kafkaTemplate(ProducerFactory<String, String> producerFactory){
+    public KafkaTemplate<String, String> kafkaTemplate(ProducerFactory<String, String> producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
 }

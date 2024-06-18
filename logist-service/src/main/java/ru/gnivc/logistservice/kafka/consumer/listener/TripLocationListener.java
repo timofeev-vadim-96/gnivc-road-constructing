@@ -23,7 +23,9 @@ import java.util.Optional;
 @Slf4j
 public class TripLocationListener {
     private final TripDao tripDao;
+
     private final TripLocationDao tripLocationDao;
+
     private final JsonConverter jsonConverter;
 
     @KafkaListener(
@@ -43,14 +45,19 @@ public class TripLocationListener {
 
         Optional<TripEntity> tripOptional = tripDao.findById(locationPoint.getTripId());
         if (tripOptional.isEmpty()) {
-            throw new NotFoundException("Trip with id = " + locationPoint.getTripId() + " received from Kafka not found.");
+            String answer = "Trip with id = " + locationPoint.getTripId() + " received from Kafka not found.";
+            throw new NotFoundException(answer);
         } else {
-            TripLocationEntity tripLocationEntity = TripLocationEntity.builder()
-                    .location(locationPoint.getLocation())
-                    .time(locationPoint.getTime())
-                    .trip(tripOptional.get())
-                    .build();
-            tripLocationDao.save(tripLocationEntity);
+            saveTripLocationEntity(locationPoint, tripOptional.get());
         }
+    }
+
+    private void saveTripLocationEntity(TripLocationDto locationPoint, TripEntity tripOptional) {
+        TripLocationEntity tripLocationEntity = TripLocationEntity.builder()
+                .location(locationPoint.getLocation())
+                .time(locationPoint.getTime())
+                .trip(tripOptional)
+                .build();
+        tripLocationDao.save(tripLocationEntity);
     }
 }

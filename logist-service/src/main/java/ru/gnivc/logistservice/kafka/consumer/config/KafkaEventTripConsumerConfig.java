@@ -24,8 +24,8 @@ public class KafkaEventTripConsumerConfig {
     /**
      * Конфигурация консюмера
      */
-    public Map<String, Object> consumerConfig(){
-        HashMap<String, Object> props = new HashMap<>();
+    public Map<String, Object> consumerConfig() {
+        Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -36,7 +36,7 @@ public class KafkaEventTripConsumerConfig {
      * Фабрика слушателей
      */
     @Bean
-    public ConsumerFactory<String, String> tripEventConsumerFactory(){
+    public ConsumerFactory<String, String> tripEventConsumerFactory() {
         return new DefaultKafkaConsumerFactory<>(consumerConfig());
     }
 
@@ -45,7 +45,9 @@ public class KafkaEventTripConsumerConfig {
      */
     @Bean
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>>
-    tripEventListenerContainerFactory(@Qualifier("tripEventConsumerFactory") ConsumerFactory<String, String> consumerFactory){
+    tripEventListenerContainerFactory(
+            @Qualifier("tripEventConsumerFactory") ConsumerFactory<String, String> consumerFactory) {
+
         ConcurrentKafkaListenerContainerFactory<String, String>
                 factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);

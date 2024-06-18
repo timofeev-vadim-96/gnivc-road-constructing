@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.gnivc.portalservice.util.ClientRole;
-import ru.gnivc.portalservice.util.RealmRole;
 
 @Data
 @AllArgsConstructor
@@ -14,10 +13,13 @@ import ru.gnivc.portalservice.util.RealmRole;
 public class UserDto {
     @NotNull
     private String email;
+
     @NotNull
     private String firstName;
+
     @NotNull
     private String lastName;
+
     @Nullable
     private ClientRole clientRole;
 

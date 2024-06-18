@@ -18,6 +18,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DwhServiceImpl implements DwhService {
     private final CompanyDao companyDao;
+
     private final CompanyStatisticsDao statisticsDao;
 
     public ResponseEntity<StatisticsByCompanyDto> getStatisticsByCompany(String companyName) {

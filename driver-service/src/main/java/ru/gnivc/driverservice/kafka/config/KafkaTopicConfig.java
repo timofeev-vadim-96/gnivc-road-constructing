@@ -9,12 +9,13 @@ import org.springframework.kafka.config.TopicBuilder;
 public class KafkaTopicConfig {
 
     @Bean
-    public NewTopic tripCarLocationTopic(){
+    public NewTopic tripCarLocationTopic() {
         return TopicBuilder.name("trip_car_location")
                 .build();
     }
+
     @Bean
-    public NewTopic tripEventTopic(){
+    public NewTopic tripEventTopic() {
         return TopicBuilder.name("trip_event")
                 .build();
     }

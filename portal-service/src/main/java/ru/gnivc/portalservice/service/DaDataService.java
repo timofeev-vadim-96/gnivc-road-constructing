@@ -7,5 +7,6 @@ import java.util.Optional;
 
 public interface DaDataService {
     JsonNode getCompanyDetailsByINN(String inn);
+
     Optional<CompanyEntity> serializeResponseToCompany(JsonNode response);
 }

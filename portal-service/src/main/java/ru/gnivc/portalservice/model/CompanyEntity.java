@@ -1,6 +1,11 @@
 package ru.gnivc.portalservice.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Table;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,13 +21,18 @@ public class CompanyEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(unique = true)
     private String name;
+
     @Column(length = 10) //длина ИНН Юр.лица
     private String inn;
+
     private String address;
+
     @Column(length = 9) //длина КПП
     private String kpp;
+
     @Column(length = 13) //длина ОГРН
     private String ogrn;
 }

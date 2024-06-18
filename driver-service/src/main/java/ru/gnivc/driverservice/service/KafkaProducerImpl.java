@@ -14,10 +14,13 @@ import ru.gnivc.driverservice.mapper.JsonConverter;
 @Service
 @RequiredArgsConstructor
 public class KafkaProducerImpl implements KafkaProducer {
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final String LOCATION_POINT_TOPIC = "trip_car_location";
-    private final String EVENT_TOPIC = "trip_event";
+    private static final String LOCATION_POINT_TOPIC = "trip_car_location";
+
+    private static final String EVENT_TOPIC = "trip_event";
+
     private final JsonConverter jsonConverter;
+
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     public ResponseEntity<Void> sendLocationPoint(TripLocationDto locationPoint) {
         try {

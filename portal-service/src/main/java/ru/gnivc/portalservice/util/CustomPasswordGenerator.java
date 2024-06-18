@@ -15,34 +15,40 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class CustomPasswordGenerator {
     private final UserPasswordProperties userPasswordProperties;
+
     private final ResetCodeProperties resetCodeProperties;
 
     /**
      * Password generation
      */
-    public String generatePassword(){
+    public String generatePassword() {
         return generatePassword(
-                userPasswordProperties.length,
-                userPasswordProperties.lowerCaseCharsQuantity,
-                userPasswordProperties.upperCaseCharsQuantity,
-                userPasswordProperties.digitsQuantity);
+                userPasswordProperties.getLength(),
+                userPasswordProperties.getLowerCaseCharsQuantity(),
+                userPasswordProperties.getUpperCaseCharsQuantity(),
+                userPasswordProperties.getDigitsQuantity());
     }
 
     /**
      * Generating the recovery code
      */
-    public String generateResetCode(){
+    public String generateResetCode() {
         return generatePassword(
-                resetCodeProperties.length,
-                resetCodeProperties.lowerCaseCharsQuantity,
-                resetCodeProperties.upperCaseCharsQuantity,
-                resetCodeProperties.digitsQuantity);
+                resetCodeProperties.getLength(),
+                resetCodeProperties.getLowerCaseCharsQuantity(),
+                resetCodeProperties.getUpperCaseCharsQuantity(),
+                resetCodeProperties.getDigitsQuantity());
     }
 
     /**
      * Password generation
      */
-    public String generatePassword(int passwordLength, int lowerCaseCharsQuantity, int upperCaseCharsQuantity, int digitsQuantity) {
+    public String generatePassword(
+            int passwordLength,
+            int lowerCaseCharsQuantity,
+            int upperCaseCharsQuantity,
+            int digitsQuantity) {
+
         PasswordGenerator gen = new PasswordGenerator();
         CharacterData lowerCaseChars = EnglishCharacterData.LowerCase;
         CharacterRule lowerCaseRule = new CharacterRule(lowerCaseChars);
@@ -63,7 +69,7 @@ public class CustomPasswordGenerator {
     /**
      * Generation of the recovery code validity period
      */
-    public LocalDateTime getExpirationDateFromNow(){
-        return LocalDateTime.now().plusMinutes(resetCodeProperties.expirationDateInMinutes);
+    public LocalDateTime getExpirationDateFromNow() {
+        return LocalDateTime.now().plusMinutes(resetCodeProperties.getExpirationDateInMinutes());
     }
 }

@@ -4,7 +4,10 @@ import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.resource.*;
+import org.keycloak.admin.client.resource.ClientsResource;
+import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
@@ -19,19 +22,30 @@ import ru.gnivc.portalservice.model.KeycloakCompany;
 import ru.gnivc.portalservice.util.ClientRole;
 import ru.gnivc.portalservice.util.RealmRole;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
 public class KeycloakService {
     private final RealmResource realm;
+
     private final UsersResource usersManager;
+
     private final ClientsResource clientsManager;
+
     private final KeycloakCompaniesDao keycloakCompaniesDao;
+
     private final CompanyDao companyDao;
 
-    public KeycloakService(Keycloak keycloak, KeycloakProperties properties, KeycloakCompaniesDao keycloakCompaniesDao, CompanyDao companyDao) {
-        realm = keycloak.realm(properties.realm);
+    public KeycloakService(
+            Keycloak keycloak,
+            KeycloakProperties properties,
+            KeycloakCompaniesDao keycloakCompaniesDao,
+            CompanyDao companyDao) {
+
+        realm = keycloak.realm(properties.getRealm());
         usersManager = realm.users();
         clientsManager = realm.clients();
         this.keycloakCompaniesDao = keycloakCompaniesDao;
@@ -63,7 +77,9 @@ public class KeycloakService {
             setPassword(registrationResult.userId, password);
             assignClientLevelRoleToUser(registrationResult.userId, companyName, userDto.getClientRole());
             return Optional.ofNullable(registrationResult.newUser.getUsername());
-        } else return Optional.empty();
+        } else {
+            return Optional.empty();
+        }
     }
 
     public UserRepresentation convertToUserRepresentation(UserDto userDto) {

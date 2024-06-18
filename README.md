@@ -4,7 +4,7 @@ This is an application with a micro-service architecture that implements the bus
 transportation**.
 
 `Quick start`:  
-1. Поднять каскад контейнеров из директории ./docker-compose с помощью команды 
+1. To raise a cascade of containers from the ./docker-compose directory using the command 
 ```bash
 docker-compose up -d
 ```
